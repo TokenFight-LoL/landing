@@ -4,12 +4,20 @@ import { useState, useEffect } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Copy, Share2, User, Power } from "lucide-react"
+import { Copy, Share2, User as UserIcon, Power, Plus } from "lucide-react"
 import InvitedUsers from "@/components/invited-users"
 import { AuthButton } from "@/components/auth-button"
+import { createOrUpdateUser, getUserByPrivyId, trackReferral, getUserReferrals, addDummyReferral, type Referral, type User as DbUser } from "@/lib/api"
 
-// Mock data for invited users
-const mockInvitedUsers = [
+// Type for invited users
+type InvitedUser = {
+  id: string;
+  username: string;
+  avatar: string;
+}
+
+// Mock data for testing
+const mockInvitedUsers: InvitedUser[] = [
   { id: "1", username: "crypto_whale", avatar: "😎" },
   { id: "2", username: "nft_collector", avatar: "🤑" },
   { id: "3", username: "eth_trader", avatar: "🚀" },
@@ -23,9 +31,12 @@ export default function Home() {
   const { ready, authenticated, user, logout } = usePrivy()
   const [referralCode, setReferralCode] = useState("")
   const [inviteCount, setInviteCount] = useState(0)
-  const [invitedUsers, setInvitedUsers] = useState<typeof mockInvitedUsers>([])
+  const [invitedUsers, setInvitedUsers] = useState<InvitedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [origin, setOrigin] = useState("")
+  const [userData, setUserData] = useState<DbUser | null>(null)
+  const [referrals, setReferrals] = useState<Referral[]>([])
+  const [isAddingDummy, setIsAddingDummy] = useState(false)
 
   // Set the origin once on the client side
   useEffect(() => {
@@ -39,32 +50,55 @@ export default function Home() {
   }, [ready])
 
   useEffect(() => {
-    // Check for referral code in URL
-    if (authenticated && user?.id) {
-      const urlParams = new URLSearchParams(window.location.search)
-      const ref = urlParams.get("ref")
+    // Check for referral code in URL and handle user data
+    const handleUser = async () => {
+      if (authenticated && user?.id) {
+        const urlParams = new URLSearchParams(window.location.search)
+        const ref = urlParams.get("ref")
+        
+        // Generate a referral code from user ID
+        const generatedCode = `TF${btoa(user.id).substring(0, 8).toUpperCase()}`
+        setReferralCode(generatedCode)
 
-      if (ref) {
-        // In a real app, you would track this referral in your database
-        console.log(`User ${user.id} was referred by code ${ref}`)
+        try {
+          // Store user in database with proper type handling
+          const userRecord = await createOrUpdateUser(
+            user.id,
+            generatedCode,
+            user.email?.address || undefined,
+            user.twitter?.username || undefined,
+            user.twitter?.profilePictureUrl || undefined
+          )
+
+          if (userRecord) {
+            setUserData(userRecord)
+            setInviteCount(userRecord.invite_count || 0)
+
+            // If user was referred, track the referral
+            if (ref && ref !== generatedCode) {
+              await trackReferral(ref, userRecord.id)
+            }
+
+            // Fetch all of this user's referrals
+            const userReferrals = await getUserReferrals(userRecord.id)
+            setReferrals(userReferrals)
+            
+            // Convert to format for InvitedUsers component
+            const formattedInvites = userReferrals.map((referral) => ({
+              id: referral.id,
+              username: referral.referred?.twitter_username || 'Anonymous User',
+              avatar: '🧑‍💻', // Default avatar
+            }))
+            
+            setInvitedUsers(formattedInvites)
+          }
+        } catch (error) {
+          console.error("Error handling user:", error)
+        }
       }
     }
-  }, [authenticated, user])
 
-  useEffect(() => {
-    // Generate a simple referral code if authenticated
-    if (authenticated && user?.id) {
-      // In a real app, you would get this from your database
-      // For now, we'll generate one based on the user ID
-      setReferralCode(`TF${btoa(user.id).substring(0, 8).toUpperCase()}`)
-
-      // Use a consistent value for invites in development
-      const count = 3 // Fixed value instead of Math.random()
-      setInviteCount(count)
-
-      // Get a consistent subset of the mock users
-      setInvitedUsers(mockInvitedUsers.slice(0, count))
-    }
+    handleUser()
   }, [authenticated, user])
 
   const copyReferralLink = () => {
@@ -72,6 +106,43 @@ export default function Home() {
     navigator.clipboard.writeText(link)
     alert("Referral link copied to clipboard")
   }
+
+  // Function to add a dummy referral for testing
+  const handleAddDummyReferral = async () => {
+    if (!userData) return;
+    
+    setIsAddingDummy(true);
+    try {
+      const success = await addDummyReferral(userData.id);
+      
+      if (success) {
+        // Refresh referrals data after adding a dummy
+        if (userData) {
+          const userReferrals = await getUserReferrals(userData.id);
+          setReferrals(userReferrals);
+          
+          // Update invite count
+          const updatedUser = await getUserByPrivyId(user?.id || '');
+          if (updatedUser) {
+            setInviteCount(updatedUser.invite_count || 0);
+          }
+          
+          // Convert to format for InvitedUsers component
+          const formattedInvites = userReferrals.map((referral) => ({
+            id: referral.id,
+            username: referral.referred?.twitter_username || 'Anonymous User',
+            avatar: '🧑‍💻', // Default avatar
+          }));
+          
+          setInvitedUsers(formattedInvites);
+        }
+      }
+    } catch (error) {
+      console.error("Error adding dummy referral:", error);
+    } finally {
+      setIsAddingDummy(false);
+    }
+  };
 
   // Handle loading state
   if (loading) {
@@ -123,7 +194,7 @@ export default function Home() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <User className="h-8 w-8 text-primary" />
+                      <UserIcon className="h-8 w-8 text-primary" />
                     )}
                   </div>
                   <div className="flex-1">
@@ -148,20 +219,36 @@ export default function Home() {
             </Card>
 
             {/* Invited Users Card */}
-            {invitedUsers.length > 0 && (
-              <Card className="w-full">
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="text-center">
-                      <h2 className="text-xl font-bold">Your Invites</h2>
-                      <p className="text-muted-foreground mt-1">You will earn trading fees from these users</p>
-                    </div>
-
-                    <InvitedUsers users={invitedUsers} />
+            <Card className="w-full">
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold">Your Invites</h2>
+                    <p className="text-muted-foreground mt-1">You will earn trading fees from these users</p>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+
+                  {invitedUsers.length > 0 ? (
+                    <InvitedUsers users={invitedUsers} />
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">No invites yet</p>
+                  )}
+                  
+                  {/* Dummy Referral Button - This would be removed in production */}
+                  <div className="flex justify-center mt-4">
+                    <Button
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleAddDummyReferral}
+                      disabled={isAddingDummy}
+                      className="text-xs"
+                    >
+                      <Plus className="mr-1 h-3 w-3" />
+                      {isAddingDummy ? 'Adding...' : 'Add Test Referral'}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Referral Card */}
             <Card className="w-full">
