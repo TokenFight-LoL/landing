@@ -20,7 +20,7 @@ const mockInvitedUsers = [
 ]
 
 export default function Home() {
-  const { ready, authenticated, user, login, logout } = usePrivy()
+  const { ready, authenticated, user, logout } = usePrivy()
   const [referralCode, setReferralCode] = useState("")
   const [inviteCount, setInviteCount] = useState(0)
   const [invitedUsers, setInvitedUsers] = useState<typeof mockInvitedUsers>([])
