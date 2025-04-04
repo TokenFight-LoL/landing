@@ -37,7 +37,7 @@ export default function Dashboard({ referralCode, referralCount, userRank, total
 
   const shareOnTwitter = () => {
     const text = encodeURIComponent(
-      `Join me in TokenFight - a blockchain strategy game where token communities battle for territory and ETH rewards! Sign up with my link: ${referralLink} #TokenFight #GameFi`,
+      `Trade tokens that kill each other: ${referralLink}`,
     )
     window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank")
   }

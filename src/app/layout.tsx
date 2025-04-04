@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "TokenFight",
-  description: "A blockchain-powered strategy game where token communities battle for territory",
+  description: "Trade tokens that kill each other",
 };
 
 export default function RootLayout({

@@ -17,12 +17,10 @@ export default function Hero({ onLogin, isAuthenticated }: HeroProps) {
           TokenFight
         </h1>
         <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-          A blockchain-powered strategy game where token communities battle on an infinite map. Capture territory, earn
-          ETH, and increase your token&apos;s value through coordinated gameplay, strategic liquidity provision, and
-          community-driven warfare.
+          Trade tokens that kill each other
         </p>
         <p className="text-lg font-semibold text-primary">
-          Join early, invite friends, and secure exclusive launch rewards.
+          Join early, invite friends, and earn <span className="underline decoration-dotted decoration-primary/60">trading fees</span>
         </p>
       </div>
 

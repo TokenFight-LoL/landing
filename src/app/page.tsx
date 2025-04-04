@@ -235,15 +235,14 @@ export default function Home() {
 
             <div className="mx-auto max-w-md">
               <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
-                A blockchain-powered strategy game where token communities battle on an infinite map. Capture territory,
-                earn ETH, and increase your token&apos;s value.
+                Trade tokens that kill each other
               </p>
             </div>
 
             <div className="py-3 px-4 border border-primary/20 rounded-lg bg-primary/5 flex items-center justify-center gap-2">
               <Trophy className="h-5 w-5 text-amber-500" />
               <p className="text-base sm:text-lg font-semibold text-primary">
-                Join early, invite friends, secure <span className="underline decoration-dotted decoration-primary/60">exclusive rewards</span>
+               Join early, invite friends, and earn <span className="underline decoration-dotted decoration-primary/60">trading fees</span>
               </p>
             </div>
 
@@ -343,7 +342,7 @@ export default function Home() {
                     onClick={() => {
                       const referralLink = `${origin || "https://tokenfight.lol"}?ref=${referralCode}`;
                       const text = encodeURIComponent(
-                        `Join me in TokenFight - a blockchain strategy game where token communities battle for territory and ETH rewards! Sign up with my link: ${referralLink} #TokenFight #GameFi`
+                        `Trade tokens that kill each other: ${referralLink}`
                       );
                       window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
                     }}
