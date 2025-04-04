@@ -319,90 +319,40 @@ export default function Home() {
                       <Share2 className="h-5 w-5 text-primary" />
                       <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">Invite Friends & Earn</span>
                     </h2>
-                    <p className="text-muted-foreground text-sm mt-1">Be among the first to earn trading fees from your network</p>
-                    
-                    {/* Rewards progress/info */}
-                    <div className="mt-4 flex flex-col gap-2 pb-3">
-                      <div className="flex flex-col gap-1 bg-gradient-to-r from-primary/5 to-purple-500/5 p-3 rounded-lg border border-primary/10">
-                        <div className="text-sm flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                          <span className="font-medium">Early access to beta</span>
-                          <div className="ml-auto text-xs bg-green-500/10 text-green-500 font-semibold px-2 py-0.5 rounded-full">Unlocked</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-1 bg-gradient-to-r from-primary/5 to-purple-500/5 p-3 rounded-lg border border-primary/10">
-                        <div className="text-sm flex items-center gap-2">
-                          <div className="h-2.5 w-2.5 rounded-full bg-amber-500"></div>
-                          <span className="font-medium">5% bonus rewards on trades</span>
-                          {inviteCount >= 3 ? (
-                            <div className="ml-auto text-xs bg-green-500/10 text-green-500 font-semibold px-2 py-0.5 rounded-full">Unlocked</div>
-                          ) : (
-                            <div className="ml-auto text-xs bg-primary/10 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <span>{inviteCount}</span>/<span>3</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-1 bg-gradient-to-r from-primary/5 to-purple-500/5 p-3 rounded-lg border border-primary/10">
-                        <div className="text-sm flex items-center gap-2">
-                          <div className="h-2.5 w-2.5 rounded-full bg-blue-500"></div>
-                          <span className="font-medium">Exclusive founder NFT</span>
-                          {inviteCount >= 10 ? (
-                            <div className="ml-auto text-xs bg-green-500/10 text-green-500 font-semibold px-2 py-0.5 rounded-full">Unlocked</div>
-                          ) : (
-                            <div className="ml-auto text-xs bg-primary/10 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <span>{inviteCount}</span>/<span>10</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/10 relative group cursor-pointer" onClick={copyReferralLink}>
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="flex items-center justify-between relative">
-                        <div className="truncate text-sm text-left">
-                          <span className="font-medium text-primary">{origin}?ref={referralCode}</span>
-                        </div>
-                        <div className="flex-shrink-0 group-hover:scale-110 transition-transform">
-                          <Copy className="h-4 w-4 text-primary" />
-                        </div>
-                      </div>
-                      
-                      {/* Copied message */}
-                      <div className={`absolute -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full px-3 py-1 bg-primary text-white text-xs font-medium rounded-md transition-opacity duration-300 ${showCopiedMessage ? 'opacity-100' : 'opacity-0'}`}>
-                        Copied!
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-primary"></div>
-                      </div>
-                    </div>
+                    <p className="text-muted-foreground text-sm mt-1">Earn 2% of trading fees from everyone you invite</p>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button onClick={copyReferralLink} className="w-full relative overflow-hidden group">
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-600 to-indigo-600"></div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <span className="relative flex items-center justify-center">
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy Personal Link
-                      </span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        const referralLink = `${origin || "https://tokenfight.lol"}?ref=${referralCode}`;
-                        const text = encodeURIComponent(
-                          `Join me in TokenFight - a blockchain strategy game where token communities battle for territory and ETH rewards! Sign up with my link: ${referralLink} #TokenFight #GameFi`
-                        );
-                        window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
-                      }}
-                      className="w-full sm:w-auto border-primary/30 hover:bg-primary/10 flex items-center gap-2"
-                    >
-                      <Share2 className="h-4 w-4" />
-                      <span className="sm:hidden">Share on Twitter</span>
-                      <ArrowUpRight className="h-3 w-3 ml-auto hidden sm:block" />
-                    </Button>
+
+                  {/* Copy button now standalone */}
+                  <Button onClick={copyReferralLink} className="w-full relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-600 to-indigo-600"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span className="relative flex items-center justify-center">
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy Personal Link
+                    </span>
+                  </Button>
+                  
+                  {/* Copied message */}
+                  <div className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-primary text-white text-sm font-medium rounded-md transition-opacity duration-300 z-50 ${showCopiedMessage ? 'opacity-100' : 'opacity-0'}`}>
+                    Copied!
                   </div>
+                  
+                  {/* Twitter share button moved below */}
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const referralLink = `${origin || "https://tokenfight.lol"}?ref=${referralCode}`;
+                      const text = encodeURIComponent(
+                        `Join me in TokenFight - a blockchain strategy game where token communities battle for territory and ETH rewards! Sign up with my link: ${referralLink} #TokenFight #GameFi`
+                      );
+                      window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+                    }}
+                    className="w-full border-primary/30 hover:bg-primary/10 flex items-center justify-center gap-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Share on Twitter</span>
+                    <ArrowUpRight className="h-3 w-3 ml-1" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -418,7 +368,7 @@ export default function Home() {
                       <Users className="h-5 w-5 text-primary" />
                       <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">Your Network</span>
                     </h2>
-                    <p className="text-muted-foreground text-sm mt-1">You will earn trading fees from these users</p>
+                    <p className="text-muted-foreground text-sm mt-1">People you&apos;ve invited - you earn 2% of their trading fees</p>
                   </div>
 
                   {invitedUsers.length > 0 ? (
@@ -427,7 +377,7 @@ export default function Home() {
                     <div className="text-center py-10 px-6 bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-lg border border-primary/10">
                       <Users className="h-8 w-8 text-primary/40 mx-auto mb-3" />
                       <p className="text-muted-foreground mb-2 font-medium">No invites yet</p>
-                      <p className="text-sm max-w-xs mx-auto">Share your personal link to start building your network and earning rewards!</p>
+                      <p className="text-sm max-w-xs mx-auto">Share your personal link to start earning 2% of your friends&apos; trading fees!</p>
                     </div>
                   )}
                 </div>

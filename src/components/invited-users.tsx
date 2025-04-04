@@ -20,14 +20,14 @@ export default function InvitedUsers({ users }: InvitedUsersProps) {
   };
   
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 py-3">
+    <div className="grid grid-cols-1 gap-3 py-3">
       {users.map((user, index) => (
         <div
           key={user.id}
           style={{
             animationDelay: `${index * 75}ms`,
           }}
-          className="flex items-center gap-2 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-lg px-3 py-2 border border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5 animate-fade-in-down"
+          className="flex items-center gap-3 bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-lg px-4 py-3 border border-primary/10 hover:border-primary/30 transition-all duration-300 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-0.5 animate-fade-in-down w-full"
         >
           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 p-0.5 flex items-center justify-center overflow-hidden flex-shrink-0">
             <div className="h-full w-full rounded-full overflow-hidden bg-background flex items-center justify-center">
@@ -43,7 +43,7 @@ export default function InvitedUsers({ users }: InvitedUsersProps) {
               )}
             </div>
           </div>
-          <span className="font-semibold truncate bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+          <span className="font-semibold text-base bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent break-all">
             {user.username}
           </span>
         </div>
