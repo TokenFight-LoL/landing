@@ -12,8 +12,6 @@ const privyConfig: PrivyClientConfig = {
     logo: "https://your-logo-url.com/logo.png", // Replace with your logo URL
     showWalletLoginFirst: true,
   },
-  // Customize login methods as needed
-  loginMethods: ["email", "wallet", "google", "twitter"],
 };
 
 export function Providers({ children }: { children: ReactNode }) {

@@ -34,3 +34,46 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Firebase Integration
+
+### Environment Variables
+
+To ensure Firebase database calls work properly, the following environment variables need to be set up:
+
+#### Local Development
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+# Firebase configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
+
+#### Deployment
+
+In your deployment platform dashboard (Vercel, Netlify, etc.):
+
+1. Go to the environment variables or settings section
+2. Add the Firebase environment variables listed above
+
+### Firebase Setup
+
+1. Create a Firebase project at [firebase.google.com](https://firebase.google.com)
+2. Set up Firestore database with the following collections:
+   - `users`: For storing user information
+   - `referrals`: For tracking referral relationships
+3. Enable the appropriate Firebase services in your project 
+4. Copy your Firebase configuration from the Firebase console to the environment variables
+
+### Data Model
+
+The application uses two main collections in Firestore:
+
+- `users`: Stores user information and referral codes
+- `referrals`: Tracks the relationship between referrers and referred users

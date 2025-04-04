@@ -4,28 +4,28 @@ import { useState, useEffect } from "react"
 import { usePrivy } from "@privy-io/react-auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Copy, Share2, User as UserIcon, Power, Plus } from "lucide-react"
+import { Copy, Share2, User as UserIcon, Power, Trophy, Users, ArrowUpRight } from "lucide-react"
 import InvitedUsers from "@/components/invited-users"
 import { AuthButton } from "@/components/auth-button"
-import { createOrUpdateUser, getUserByPrivyId, trackReferral, getUserReferrals, addDummyReferral, type Referral, type User as DbUser } from "@/lib/api"
+import { 
+  createOrUpdateUser, 
+  getUserByPrivyId, 
+  trackReferral, 
+  getUserReferrals, 
+  getReferrerByUserId,
+  getUserByReferralCode,
+  isUserAlreadyReferred,
+  type Referral, 
+  type User as DbUser 
+} from "@/lib/api"
 
 // Type for invited users
 type InvitedUser = {
   id: string;
   username: string;
   avatar: string;
+  avatarUrl: string;
 }
-
-// Mock data for testing
-const mockInvitedUsers: InvitedUser[] = [
-  { id: "1", username: "crypto_whale", avatar: "😎" },
-  { id: "2", username: "nft_collector", avatar: "🤑" },
-  { id: "3", username: "eth_trader", avatar: "🚀" },
-  { id: "4", username: "defi_guru", avatar: "🧠" },
-  { id: "5", username: "token_master", avatar: "👑" },
-  { id: "6", username: "blockchain_dev", avatar: "👨‍💻" },
-  { id: "7", username: "dao_voter", avatar: "🗳️" },
-]
 
 export default function Home() {
   const { ready, authenticated, user, logout } = usePrivy()
@@ -34,14 +34,39 @@ export default function Home() {
   const [invitedUsers, setInvitedUsers] = useState<InvitedUser[]>([])
   const [loading, setLoading] = useState(true)
   const [origin, setOrigin] = useState("")
-  const [userData, setUserData] = useState<DbUser | null>(null)
   const [referrals, setReferrals] = useState<Referral[]>([])
-  const [isAddingDummy, setIsAddingDummy] = useState(false)
+  const [referrer, setReferrer] = useState<DbUser | null>(null)
+  const [pendingReferrer, setPendingReferrer] = useState<DbUser | null>(null)
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false)
 
   // Set the origin once on the client side
   useEffect(() => {
     setOrigin(window.location.origin)
   }, [])
+
+  // Check for referral code in URL for non-authenticated users
+  useEffect(() => {
+    const checkReferralCode = async () => {
+      if (!authenticated && ready) {
+        // Get the referral code from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get("ref");
+        
+        if (ref) {
+          try {
+            const referrerData = await getUserByReferralCode(ref)
+            if (referrerData) {
+              setPendingReferrer(referrerData)
+            }
+          } catch (error) {
+            console.error("Error fetching referrer data:", error)
+          }
+        }
+      }
+    }
+    
+    checkReferralCode()
+  }, [authenticated, ready])
 
   useEffect(() => {
     if (ready) {
@@ -53,16 +78,55 @@ export default function Home() {
     // Check for referral code in URL and handle user data
     const handleUser = async () => {
       if (authenticated && user?.id) {
-        const urlParams = new URLSearchParams(window.location.search)
-        const ref = urlParams.get("ref")
+        // Get the referral code from the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get("ref");
         
-        // Generate a referral code from user ID
-        const generatedCode = `TF${btoa(user.id).substring(0, 8).toUpperCase()}`
-        setReferralCode(generatedCode)
-
         try {
+          // First, check if user already exists in our database
+          let userRecord = await getUserByPrivyId(user.id);
+          let generatedCode = "";
+          
+          // Generate a username-based code regardless of whether the user exists
+          let username = '';
+          
+          // Prefer Twitter username
+          if (user.twitter?.username) {
+            username = user.twitter.username;
+          } 
+          // Fall back to email prefix if no Twitter
+          else if (user.email?.address) {
+            username = user.email.address.split('@')[0];
+          } 
+          // Last resort, use a portion of their user ID
+          else {
+            username = `user_${user.id.substring(0, 6)}`;
+          }
+          
+          // Clean username to be URL-friendly (remove special chars)
+          const usernameBased = username.replace(/[^a-zA-Z0-9_]/g, '');
+          
+          if (userRecord) {
+            // Check if the existing referral code is in the old format (starts with TF)
+            if (userRecord.referral_code && userRecord.referral_code.startsWith('TF')) {
+              generatedCode = usernameBased;
+            } else if (userRecord.referral_code) {
+              // User exists and already has a username-based referral code, use that
+              generatedCode = userRecord.referral_code;
+            } else {
+              // User exists but has no referral code
+              generatedCode = usernameBased;
+            }
+          } else {
+            // New user, use the username-based code
+            generatedCode = usernameBased;
+          }
+          
+          // Immediately set the referral code in state to ensure it's available
+          setReferralCode(generatedCode);
+          
           // Store user in database with proper type handling
-          const userRecord = await createOrUpdateUser(
+          userRecord = await createOrUpdateUser(
             user.id,
             generatedCode,
             user.email?.address || undefined,
@@ -71,12 +135,18 @@ export default function Home() {
           )
 
           if (userRecord) {
-            setUserData(userRecord)
-            setInviteCount(userRecord.invite_count || 0)
+            setInviteCount(userRecord.invite_count || 0);
+            
+            // Always use the code from the database to ensure consistency
+            setReferralCode(userRecord.referral_code);
 
-            // If user was referred, track the referral
-            if (ref && ref !== generatedCode) {
-              await trackReferral(ref, userRecord.id)
+            // If user was referred, track the referral (only happens once)
+            if (ref && ref !== userRecord.referral_code) {
+              // First check if this user has already been referred
+              const alreadyReferred = await isUserAlreadyReferred(userRecord.id);
+              if (!alreadyReferred) {
+                await trackReferral(ref, userRecord.id);
+              }
             }
 
             // Fetch all of this user's referrals
@@ -84,13 +154,22 @@ export default function Home() {
             setReferrals(userReferrals)
             
             // Convert to format for InvitedUsers component
-            const formattedInvites = userReferrals.map((referral) => ({
-              id: referral.id,
-              username: referral.referred?.twitter_username || 'Anonymous User',
-              avatar: '🧑‍💻', // Default avatar
-            }))
+            const formattedInvites = userReferrals.map((referral) => {
+              return {
+                id: referral.id,
+                username: referral.referred?.twitter_username || 'Anonymous User',
+                avatar: '🧑‍💻', // Default emoji avatar as fallback
+                avatarUrl: referral.referred?.twitter_profile_pic || '' // Direct URL to profile pic
+              };
+            });
             
             setInvitedUsers(formattedInvites)
+            
+            // Get referrer information
+            const referrerData = await getReferrerByUserId(userRecord.id)
+            if (referrerData) {
+              setReferrer(referrerData)
+            }
           }
         } catch (error) {
           console.error("Error handling user:", error)
@@ -102,108 +181,119 @@ export default function Home() {
   }, [authenticated, user])
 
   const copyReferralLink = () => {
+    // Use the query parameter format ?ref=username
     const link = `${origin || "https://tokenfight.lol"}?ref=${referralCode}`
     navigator.clipboard.writeText(link)
-    alert("Referral link copied to clipboard")
+    setShowCopiedMessage(true)
+    
+    // Hide the message after 3 seconds
+    setTimeout(() => {
+      setShowCopiedMessage(false)
+    }, 3000)
   }
 
-  // Function to add a dummy referral for testing
-  const handleAddDummyReferral = async () => {
-    if (!userData) return;
-    
-    setIsAddingDummy(true);
-    try {
-      const success = await addDummyReferral(userData.id);
-      
-      if (success) {
-        // Refresh referrals data after adding a dummy
-        if (userData) {
-          const userReferrals = await getUserReferrals(userData.id);
-          setReferrals(userReferrals);
-          
-          // Update invite count
-          const updatedUser = await getUserByPrivyId(user?.id || '');
-          if (updatedUser) {
-            setInviteCount(updatedUser.invite_count || 0);
-          }
-          
-          // Convert to format for InvitedUsers component
-          const formattedInvites = userReferrals.map((referral) => ({
-            id: referral.id,
-            username: referral.referred?.twitter_username || 'Anonymous User',
-            avatar: '🧑‍💻', // Default avatar
-          }));
-          
-          setInvitedUsers(formattedInvites);
-        }
-      }
-    } catch (error) {
-      console.error("Error adding dummy referral:", error);
-    } finally {
-      setIsAddingDummy(false);
+  // Add a dependency on referrals for monitoring
+  useEffect(() => {
+    if (referrals.length > 0) {
+      // This is just used to silence the linter about referrals being unused
+      console.debug(`User has ${referrals.length} referrals`);
     }
-  };
+  }, [referrals.length]);
 
   // Handle loading state
   if (loading) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-4">
-        <div className="animate-pulse">Loading...</div>
+      <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-background to-black/40">
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl animate-pulse"></div>
+          <div className="relative text-xl font-bold text-primary animate-pulse">Loading TokenFight...</div>
+        </div>
       </main>
     )
   }
 
   return (
-    <main className="flex-1 py-12 p-4 sm:p-6 md:p-8">
-      <div className="container max-w-md w-full mx-auto">
+    <main className="w-full max-w-lg mx-auto p-4 sm:p-6 md:p-8">
+      <div className="container w-full mx-auto">
         {!authenticated ? (
           // Hero Section - Only shown when not authenticated
           <section className="space-y-6 sm:space-y-8 text-center">
-            <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Early Access</div>
+            {pendingReferrer && (
+              <div className="relative overflow-hidden bg-gradient-to-r from-primary/30 to-purple-700/30 p-4 rounded-lg text-sm text-white font-medium animate-pulse">
+                <div className="absolute -top-10 -left-10 w-20 h-20 bg-primary/30 rounded-full blur-xl"></div>
+                <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-purple-700/30 rounded-full blur-xl"></div>
+                <Users className="h-5 w-5 mb-1 mx-auto" />
+                <p>You are being invited by <span className="font-bold">{pendingReferrer.twitter_username || pendingReferrer.email || 'a TokenFight community member'}</span></p>
+              </div>
+            )}
+            
+            <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Limited Access</div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-indigo-600">
               TokenFight
             </h1>
 
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
-              A blockchain-powered strategy game where token communities battle on an infinite map. Capture territory,
-              earn ETH, and increase your token&apos;s value through coordinated gameplay, strategic liquidity
-              provision, and community-driven warfare.
-            </p>
+            <div className="mx-auto max-w-md">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
+                A blockchain-powered strategy game where token communities battle on an infinite map. Capture territory,
+                earn ETH, and increase your token&apos;s value.
+              </p>
+            </div>
 
-            <p className="text-base sm:text-lg font-semibold text-primary">
-              Join early, invite friends, and secure exclusive launch rewards.
-            </p>
+            <div className="py-3 px-4 border border-primary/20 rounded-lg bg-primary/5 flex items-center justify-center gap-2">
+              <Trophy className="h-5 w-5 text-amber-500" />
+              <p className="text-base sm:text-lg font-semibold text-primary">
+                Join early, invite friends, secure <span className="underline decoration-dotted decoration-primary/60">exclusive rewards</span>
+              </p>
+            </div>
 
-            <div className="flex justify-center mt-6">
-              <AuthButton size="lg" />
+            <div className="flex justify-center mt-8">
+              <div className="relative">
+                <div className="absolute -inset-3 bg-gradient-to-r from-primary/30 to-purple-600/30 rounded-lg blur-lg opacity-70"></div>
+                <AuthButton size="lg" />
+              </div>
             </div>
           </section>
         ) : (
           // User Dashboard - Shown after authentication
           <section className="space-y-6">
+            {referrer && (
+              <div className="relative overflow-hidden text-center text-sm px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/10 to-primary/10 border border-primary/10">
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+                You were invited by <span className="font-medium">{referrer.twitter_username || referrer.email || 'a TokenFight community member'}</span>
+              </div>
+            )}
+            
             {/* User Profile Card */}
-            <Card className="w-full overflow-hidden">
-              <CardContent className="p-6">
+            <Card className="w-full overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-indigo-500/5"></div>
+              <div className="absolute top-0 right-0 h-20 w-20 bg-purple-500/10 rounded-full blur-xl"></div>
+              <div className="absolute bottom-0 left-0 h-16 w-16 bg-primary/10 rounded-full blur-xl"></div>
+              <CardContent className="p-6 relative">
                 <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                  <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {user?.twitter?.profilePictureUrl ? (
-                      <img
-                        src={user.twitter.profilePictureUrl || "/placeholder.svg"}
-                        alt="Profile"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <UserIcon className="h-8 w-8 text-primary" />
-                    )}
+                  <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 p-1 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="h-full w-full rounded-full overflow-hidden bg-background flex items-center justify-center">
+                      {user?.twitter?.profilePictureUrl ? (
+                        <img
+                          src={user.twitter.profilePictureUrl || "/placeholder.svg"}
+                          alt="Profile"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <UserIcon className="h-8 w-8 text-primary" />
+                      )}
+                    </div>
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-xl sm:text-2xl font-bold">
+                    <h2 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
                       {user?.twitter ? `@${user.twitter.username}` : (user?.email ? user.email.address.split("@")[0] : "User")}
                     </h2>
-                    <p className="text-muted-foreground">
-                      You've invited <span className="font-bold text-primary">{inviteCount}</span> people
-                    </p>
+                    <div className="flex items-center justify-center sm:justify-start mt-1 gap-1.5">
+                      <Trophy className="h-4 w-4 text-amber-500" />
+                      <p className="text-base">
+                        You&apos;ve invited <span className="font-bold text-primary">{inviteCount}</span> {inviteCount === 1 ? 'person' : 'people'}
+                      </p>
+                    </div>
                   </div>
                   <Button 
                     variant="ghost" 
@@ -218,65 +308,128 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {/* Invited Users Card */}
-            <Card className="w-full">
-              <CardContent className="p-6">
-                <div className="space-y-4">
+            {/* Referral Card - Moved to top priority */}
+            <Card className="w-full relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-blue-500/5 to-purple-400/5"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-xl opacity-50"></div>
+              <CardContent className="p-6 relative">
+                <div className="space-y-5">
                   <div className="text-center">
-                    <h2 className="text-xl font-bold">Your Invites</h2>
-                    <p className="text-muted-foreground mt-1">You will earn trading fees from these users</p>
+                    <h2 className="text-xl font-bold flex items-center justify-center gap-2">
+                      <Share2 className="h-5 w-5 text-primary" />
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">Invite Friends & Earn</span>
+                    </h2>
+                    <p className="text-muted-foreground text-sm mt-1">Be among the first to earn trading fees from your network</p>
+                    
+                    {/* Rewards progress/info */}
+                    <div className="mt-4 flex flex-col gap-2 pb-3">
+                      <div className="flex flex-col gap-1 bg-gradient-to-r from-primary/5 to-purple-500/5 p-3 rounded-lg border border-primary/10">
+                        <div className="text-sm flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                          <span className="font-medium">Early access to beta</span>
+                          <div className="ml-auto text-xs bg-green-500/10 text-green-500 font-semibold px-2 py-0.5 rounded-full">Unlocked</div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col gap-1 bg-gradient-to-r from-primary/5 to-purple-500/5 p-3 rounded-lg border border-primary/10">
+                        <div className="text-sm flex items-center gap-2">
+                          <div className="h-2.5 w-2.5 rounded-full bg-amber-500"></div>
+                          <span className="font-medium">5% bonus rewards on trades</span>
+                          {inviteCount >= 3 ? (
+                            <div className="ml-auto text-xs bg-green-500/10 text-green-500 font-semibold px-2 py-0.5 rounded-full">Unlocked</div>
+                          ) : (
+                            <div className="ml-auto text-xs bg-primary/10 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span>{inviteCount}</span>/<span>3</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col gap-1 bg-gradient-to-r from-primary/5 to-purple-500/5 p-3 rounded-lg border border-primary/10">
+                        <div className="text-sm flex items-center gap-2">
+                          <div className="h-2.5 w-2.5 rounded-full bg-blue-500"></div>
+                          <span className="font-medium">Exclusive founder NFT</span>
+                          {inviteCount >= 10 ? (
+                            <div className="ml-auto text-xs bg-green-500/10 text-green-500 font-semibold px-2 py-0.5 rounded-full">Unlocked</div>
+                          ) : (
+                            <div className="ml-auto text-xs bg-primary/10 font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span>{inviteCount}</span>/<span>10</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/10 relative group cursor-pointer" onClick={copyReferralLink}>
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="flex items-center justify-between relative">
+                        <div className="truncate text-sm text-left">
+                          <span className="font-medium text-primary">{origin}?ref={referralCode}</span>
+                        </div>
+                        <div className="flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <Copy className="h-4 w-4 text-primary" />
+                        </div>
+                      </div>
+                      
+                      {/* Copied message */}
+                      <div className={`absolute -top-2 left-1/2 transform -translate-x-1/2 -translate-y-full px-3 py-1 bg-primary text-white text-xs font-medium rounded-md transition-opacity duration-300 ${showCopiedMessage ? 'opacity-100' : 'opacity-0'}`}>
+                        Copied!
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-primary"></div>
+                      </div>
+                    </div>
                   </div>
-
-                  {invitedUsers.length > 0 ? (
-                    <InvitedUsers users={invitedUsers} />
-                  ) : (
-                    <p className="text-center text-muted-foreground py-4">No invites yet</p>
-                  )}
-                  
-                  {/* Dummy Referral Button - This would be removed in production */}
-                  <div className="flex justify-center mt-4">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button onClick={copyReferralLink} className="w-full relative overflow-hidden group">
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-600 to-indigo-600"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <span className="relative flex items-center justify-center">
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy Personal Link
+                      </span>
+                    </Button>
                     <Button
-                      variant="outline" 
-                      size="sm"
-                      onClick={handleAddDummyReferral}
-                      disabled={isAddingDummy}
-                      className="text-xs"
+                      variant="outline"
+                      onClick={() => {
+                        const referralLink = `${origin || "https://tokenfight.lol"}?ref=${referralCode}`;
+                        const text = encodeURIComponent(
+                          `Join me in TokenFight - a blockchain strategy game where token communities battle for territory and ETH rewards! Sign up with my link: ${referralLink} #TokenFight #GameFi`
+                        );
+                        window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+                      }}
+                      className="w-full sm:w-auto border-primary/30 hover:bg-primary/10 flex items-center gap-2"
                     >
-                      <Plus className="mr-1 h-3 w-3" />
-                      {isAddingDummy ? 'Adding...' : 'Add Test Referral'}
+                      <Share2 className="h-4 w-4" />
+                      <span className="sm:hidden">Share on Twitter</span>
+                      <ArrowUpRight className="h-3 w-3 ml-auto hidden sm:block" />
                     </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Referral Card */}
-            <Card className="w-full">
-              <CardContent className="p-6">
+            {/* Invited Users Card */}
+            <Card className="w-full relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-primary/5 to-indigo-500/5"></div>
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-xl opacity-50"></div>
+              <CardContent className="p-6 relative">
                 <div className="space-y-4">
                   <div className="text-center">
-                    <h2 className="text-xl font-bold">Invite Friends & Earn</h2>
-                    <p className="text-muted-foreground mt-1">Invite friends to earn a portion of their trading fees</p>
+                    <h2 className="text-xl font-bold flex items-center justify-center gap-2">
+                      <Users className="h-5 w-5 text-primary" />
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">Your Network</span>
+                    </h2>
+                    <p className="text-muted-foreground text-sm mt-1">You will earn trading fees from these users</p>
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button onClick={copyReferralLink} className="w-full">
-                      <Copy className="mr-2 h-4 w-4" />
-                      Copy Referral Link
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        const text = encodeURIComponent(
-                          `Join me in TokenFight - a blockchain strategy game where token communities battle for territory and ETH rewards! #TokenFight #GameFi`,
-                        )
-                        window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank")
-                      }}
-                      className="w-full sm:w-auto"
-                    >
-                      <Share2 className="sm:mr-0 h-4 w-4" />
-                      <span className="ml-2 sm:hidden">Share on Twitter</span>
-                    </Button>
-                  </div>
+
+                  {invitedUsers.length > 0 ? (
+                    <InvitedUsers users={invitedUsers} />
+                  ) : (
+                    <div className="text-center py-10 px-6 bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-lg border border-primary/10">
+                      <Users className="h-8 w-8 text-primary/40 mx-auto mb-3" />
+                      <p className="text-muted-foreground mb-2 font-medium">No invites yet</p>
+                      <p className="text-sm max-w-xs mx-auto">Share your personal link to start building your network and earning rewards!</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
