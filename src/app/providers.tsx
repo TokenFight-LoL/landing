@@ -9,7 +9,7 @@ const privyConfig: PrivyClientConfig = {
   appearance: {
     theme: "dark" as const,
     accentColor: "#8A63D2", // A nice purple
-    logo: "https://your-logo-url.com/logo.png", // Replace with your logo URL
+    logo: "/logo.png", // Using our logo.png file
     showWalletLoginFirst: true,
   },
 };

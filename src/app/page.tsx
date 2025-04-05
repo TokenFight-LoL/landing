@@ -229,6 +229,11 @@ export default function Home() {
             
             <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">Limited Access</div>
 
+            {/* Logo Image */}
+            <div className="mx-auto w-32 h-32 mb-4">
+              <img src="/logo.png" alt="TokenFight Logo" className="w-full h-full object-contain" />
+            </div>
+
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-indigo-600">
               TokenFight
             </h1>
@@ -256,6 +261,13 @@ export default function Home() {
         ) : (
           // User Dashboard - Shown after authentication
           <section className="space-y-6">
+            {/* Logo at top center when logged in */}
+            <div className="w-full flex justify-center mb-6">
+              <div className="w-20 h-20">
+                <img src="/logo.png" alt="TokenFight Logo" className="w-full h-full object-contain" />
+              </div>
+            </div>
+
             {referrer && (
               <div className="relative overflow-hidden text-center text-sm px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/10 to-primary/10 border border-primary/10">
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
