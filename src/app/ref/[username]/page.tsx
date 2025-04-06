@@ -1,47 +1,52 @@
+// app/ref/[username]/page.tsx
+
 import { Metadata, ResolvingMetadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getUserByReferralCode } from '@/lib/api';
 
-// Define props type
-type Props = {
-  params: { username: string };
-};
+// Define params as Promise for Next.js 15
+type Params = Promise<{ username: string }>;
 
-// Generate dynamic metadata
+// 1. Correct signature for generateMetadata with Promise-based params
 export async function generateMetadata(
-  { params }: Props,
+  { params }: { params: Params },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  // Get username from route params
-  const username = params.username;
-  
+  // Await the params to get the username
+  const { username } = await params;
+
+  // Get parent metadata if needed
+  const previous = await parent;
+  const previousImages = previous.openGraph?.images || [];
+
   // Fetch user data to verify username exists
   let referrerName = '';
   try {
     const user = await getUserByReferralCode(username);
-    if (user && user.twitter_username) {
+    if (user?.twitter_username) {
       referrerName = user.twitter_username;
     }
   } catch (error) {
     console.error('Error fetching user data for OG image:', error);
   }
 
-  // Get parent metadata
-  const previousImages = (await parent).openGraph?.images || [];
-  
   // Create absolute URL for OG image
-  const ogUrl = new URL(`${process.env.NEXT_PUBLIC_WEBSITE_URL || process.env.VERCEL_URL || 'http://localhost:3000'}/api/og`);
+  const ogUrl = new URL(
+    `${process.env.NEXT_PUBLIC_WEBSITE_URL 
+      || process.env.VERCEL_URL 
+      || 'http://localhost:3000'}/api/og`
+  );
   if (referrerName) {
     ogUrl.searchParams.set('username', referrerName);
   }
 
   return {
-    title: referrerName 
+    title: referrerName
       ? `Join ${referrerName} on TokenFight`
       : 'You\'ve been invited to TokenFight',
     description: 'Trade tokens that kill each other',
     openGraph: {
-      title: referrerName 
+      title: referrerName
         ? `${referrerName} is inviting you to TokenFight`
         : 'You\'ve been invited to TokenFight',
       description: 'Trade tokens that kill each other',
@@ -52,12 +57,12 @@ export async function generateMetadata(
           height: 630,
           alt: 'TokenFight Invitation',
         },
-        ...previousImages,
+        ...previousImages, // pulled from parent metadata
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: referrerName 
+      title: referrerName
         ? `${referrerName} is inviting you to TokenFight`
         : 'You\'ve been invited to TokenFight',
       description: 'Trade tokens that kill each other',
@@ -66,10 +71,15 @@ export async function generateMetadata(
   };
 }
 
-// Page component that redirects to home with the referral code as query param
-export default async function ReferralPage({ params }: Props) {
-  const { username } = params;
+// 2. Update page component to async and use Promise-based params
+export default async function ReferralPage({
+  params,
+}: {
+  params: Params;
+}) {
+  // Await the params to get the username
+  const { username } = await params;
   
   // Redirect to the home page with ref query parameter
   redirect(`/?ref=${username}`);
-} 
+}
