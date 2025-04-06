@@ -31,11 +31,12 @@ export async function generateMetadata(
   }
 
   // Create absolute URL for OG image
-  const ogUrl = new URL(
-    `${process.env.NEXT_PUBLIC_WEBSITE_URL 
-      || process.env.VERCEL_URL 
-      || 'http://localhost:3000'}/api/og`
-  );
+  // For Netlify deployments, we use NEXT_PUBLIC_WEBSITE_URL
+  const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000';
+    
+  // Make sure we have a fully qualified URL for the OG image
+  const ogUrl = new URL('/api/og', baseUrl);
+  
   if (referrerName) {
     ogUrl.searchParams.set('username', referrerName);
   }
@@ -50,6 +51,8 @@ export async function generateMetadata(
         ? `${referrerName} is inviting you to TokenFight`
         : 'You\'ve been invited to TokenFight',
       description: 'Trade tokens that kill each other',
+      type: 'website',
+      url: baseUrl,
       images: [
         {
           url: ogUrl.toString(),
@@ -66,7 +69,12 @@ export async function generateMetadata(
         ? `${referrerName} is inviting you to TokenFight`
         : 'You\'ve been invited to TokenFight',
       description: 'Trade tokens that kill each other',
-      images: [ogUrl.toString()],
+      images: [{
+        url: ogUrl.toString(),
+        width: 1200,
+        height: 630,
+        alt: 'TokenFight Invitation',
+      }],
     },
   };
 }
