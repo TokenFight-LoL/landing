@@ -1,7 +1,6 @@
 // app/ref/[username]/page.tsx
 
 import { Metadata, ResolvingMetadata } from 'next';
-import { redirect } from 'next/navigation';
 import { getUserByReferralCode } from '@/lib/api';
 
 // Define params as Promise for Next.js 15
@@ -79,7 +78,7 @@ export async function generateMetadata(
   };
 }
 
-// 2. Update page component to async and use Promise-based params
+// 2. Update page component to handle both users and crawlers
 export default async function ReferralPage({
   params,
 }: {
@@ -88,6 +87,21 @@ export default async function ReferralPage({
   // Await the params to get the username
   const { username } = await params;
   
-  // Redirect to the home page with ref query parameter
-  redirect(`/?ref=${username}`);
+  // Create a simple landing page for crawlers but redirect regular users
+  return (
+    <html>
+      <head>
+        <meta httpEquiv="refresh" content={`0;url=/?ref=${username}`} />
+      </head>
+      <body>
+        <p>Redirecting to TokenFight...</p>
+        <p>
+          If you are not redirected automatically, please{' '}
+          <a href={`/?ref=${username}`}>click here</a>.
+        </p>
+        {/* This page exists primarily for OpenGraph metadata */}
+        {/* Normal users will be redirected immediately */}
+      </body>
+    </html>
+  );
 }
