@@ -11,6 +11,7 @@
   "dependencies": {
     "@privy-io/react-auth": "^2.7.2",
     "@radix-ui/react-slot": "^1.1.2",
+    "@vercel/og": "^0.6.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^11.6.0",

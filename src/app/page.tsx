@@ -181,8 +181,8 @@ export default function Home() {
   }, [authenticated, user])
 
   const copyReferralLink = () => {
-    // Use the query parameter format ?ref=username
-    const link = `${origin || "https://tokenfight.lol"}?ref=${referralCode}`
+    // Use the new route format for better sharing and OpenGraph support
+    const link = `${origin || "https://tokenfight.lol"}/ref/${referralCode}`
     navigator.clipboard.writeText(link)
     setShowCopiedMessage(true)
     
@@ -352,7 +352,8 @@ export default function Home() {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      const referralLink = `${origin || "https://tokenfight.lol"}?ref=${referralCode}`;
+                      // Use the new route format for better sharing and OpenGraph support
+                      const referralLink = `${origin || "https://tokenfight.lol"}/ref/${referralCode}`;
                       const text = encodeURIComponent(
                         `Trade tokens that kill each other: ${referralLink}`
                       );
