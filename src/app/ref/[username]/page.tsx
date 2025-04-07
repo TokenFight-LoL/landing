@@ -1,12 +1,20 @@
-// app/ref/[username]/page.tsx
-
+// Server Component - handles metadata generation
 import { Metadata, ResolvingMetadata } from 'next';
 import { getUserByReferralCode } from '@/lib/api';
+import ReferralClient from './client';
 
-// Define params as Promise for Next.js 15
+// Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
 
-// 1. Correct signature for generateMetadata with Promise-based params
+// Define the type for referrer data to match client component
+type ReferrerData = {
+  id: string;
+  twitter_username?: string;
+  email?: string;
+  referral_code: string;
+};
+
+// Generate metadata for sharing
 export async function generateMetadata(
   { params }: { params: Params },
   parent: ResolvingMetadata
@@ -51,7 +59,7 @@ export async function generateMetadata(
         : 'You\'ve been invited to TokenFight',
       description: 'Trade tokens that kill each other',
       type: 'website',
-      url: baseUrl,
+      url: `${baseUrl}/ref/${username}`,
       images: [
         {
           url: ogUrl.toString(),
@@ -78,30 +86,19 @@ export async function generateMetadata(
   };
 }
 
-// 2. Update page component to handle both users and crawlers
-export default async function ReferralPage({
-  params,
-}: {
-  params: Params;
-}) {
+// Page component that renders the client component
+export default async function ReferralPage({ params }: { params: Params }) {
   // Await the params to get the username
   const { username } = await params;
   
-  // Create a simple landing page for crawlers but redirect regular users
-  return (
-    <html>
-      <head>
-        <meta httpEquiv="refresh" content={`0;url=/?ref=${username}`} />
-      </head>
-      <body>
-        <p>Redirecting to TokenFight...</p>
-        <p>
-          If you are not redirected automatically, please{' '}
-          <a href={`/?ref=${username}`}>click here</a>.
-        </p>
-        {/* This page exists primarily for OpenGraph metadata */}
-        {/* Normal users will be redirected immediately */}
-      </body>
-    </html>
-  );
+  // Pre-fetch the referrer data on the server
+  let referrerData: ReferrerData | null = null;
+  try {
+    referrerData = await getUserByReferralCode(username);
+  } catch (error) {
+    console.error('Error fetching referrer data:', error);
+  }
+
+  // Pass the username and pre-fetched data to the client component
+  return <ReferralClient username={username} initialReferrerData={referrerData} />;
 }
