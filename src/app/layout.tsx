@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TokenFight",
-  description: "Trade tokens that kill each other",
+  title: "Token Fight - Trade tokens that kill each other",
+  description: "Enter the arena. Trade tokens that kill each other.",
   icons: {
     icon: '/logo.png',
     apple: '/logo.png',

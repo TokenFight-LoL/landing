@@ -3,8 +3,20 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
+import { Klee_One } from "next/font/google";
 
-export function AuthButton({ size = "sm" }: { size?: "sm" | "lg" }) {
+const klee = Klee_One({
+  weight: ["400", "600"],
+  subsets: ["latin"],
+  display: "swap",
+});
+
+interface AuthButtonProps {
+  size?: "sm" | "lg";
+  className?: string;
+}
+
+export function AuthButton({ size = "sm", className }: AuthButtonProps) {
   const { ready, authenticated, login, isModalOpen } = usePrivy();
   
   // Handle login with modal tracking
@@ -14,7 +26,12 @@ export function AuthButton({ size = "sm" }: { size?: "sm" | "lg" }) {
 
   if (!ready) {
     return (
-      <Button variant="outline" size={size} disabled>
+      <Button 
+        variant="outline" 
+        size={size} 
+        disabled
+        className={`${klee.className} ${className || ""}`}
+      >
         Loading...
       </Button>
     );
@@ -29,26 +46,23 @@ export function AuthButton({ size = "sm" }: { size?: "sm" | "lg" }) {
     return (
       <Button 
         onClick={handleLogin} 
-        variant="default" 
         size="lg" 
-        className="group w-full sm:w-auto relative overflow-hidden"
+        className={`${className || ""} group relative inline-flex items-center justify-center px-10 py-3.5 overflow-hidden rounded-full border border-[#8af337]/50 bg-transparent text-[#8af337] transition-all hover:bg-[#8af337]/10 focus:outline-none animate-glow-pulse hover:animate-none`}
         disabled={isModalOpen}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-600 to-indigo-600"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-purple-600/80 to-indigo-600/80 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <span className="relative flex items-center justify-center">
+        <span className={`${klee.className} relative flex items-center gap-2 text-base font-normal uppercase tracking-wide`}>
           {isModalOpen ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-[#8af337]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Connecting...
+              CONNECTING...
             </>
           ) : (
             <>
-              Sign in with Twitter
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              JOIN NOW
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </>
           )}
         </span>
@@ -59,24 +73,20 @@ export function AuthButton({ size = "sm" }: { size?: "sm" | "lg" }) {
   return (
     <Button 
       onClick={handleLogin} 
-      variant="default" 
-      size="sm"
-      className="relative overflow-hidden group"
+      className={`${className || ""} relative overflow-hidden group border border-[#8af337]/50 bg-transparent text-[#8af337] hover:bg-[#8af337]/10`}
       disabled={isModalOpen}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-primary to-purple-600"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-purple-600/90 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-      <span className="relative">
+      <span className={`${klee.className} relative flex items-center justify-center`}>
         {isModalOpen ? (
           <>
-            <svg className="animate-spin -ml-1 mr-2 inline-block h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin -ml-1 mr-2 inline-block h-3 w-3 text-[#8af337]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             Connecting
           </>
         ) : (
-          "Login"
+          "Join Now"
         )}
       </span>
     </Button>
