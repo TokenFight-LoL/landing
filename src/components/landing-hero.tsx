@@ -5,6 +5,7 @@ import { Users } from "lucide-react"
 import Image from "next/image"
 import { Klee_One } from "next/font/google"
 import "./token-fight.css"
+import { useEffect, useState } from "react"
 
 const klee = Klee_One({
   weight: ["400", "600"],
@@ -25,8 +26,37 @@ interface LandingHeroProps {
 }
 
 export function LandingHero({ referrerData }: LandingHeroProps) {
+  // Track viewport height to handle mobile browser issues
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+
+  // Effect to handle mobile viewport height changes
+  useEffect(() => {
+    // Set initial viewport height
+    setViewportHeight(window.innerHeight);
+
+    // Function to update viewport height when size changes
+    const handleResize = () => {
+      setViewportHeight(window.innerHeight);
+    };
+
+    // Add event listeners for resize and orientation change
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
+  // Calculate dynamic style for container
+  const containerStyle = viewportHeight ? {
+    minHeight: `${viewportHeight}px`
+  } : undefined;
+
   return (
-    <div className="z-10 flex flex-col items-center justify-between min-h-screen px-3 sm:px-4 md:px-5 lg:px-6 pb-10 pt-10">
+    <div className="z-10 flex flex-col items-center justify-between px-3 sm:px-4 md:px-5 lg:px-6 pb-safe pt-10" style={containerStyle}>
       {/* Empty flex space at top to help with centering */}
       <div className="flex-grow" />
       
@@ -67,8 +97,8 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
       {/* Empty flex space to push content to center */}
       <div className="flex-grow" />
 
-      {/* Footer */}
-      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-white/90 text-xs sm:text-sm md:text-xl max-w-xs sm:max-w-sm md:max-w-none text-center sm:text-left mt-6">
+      {/* Footer with safe area padding */}
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-white/90 text-xs sm:text-sm md:text-xl max-w-xs sm:max-w-sm md:max-w-none text-center sm:text-left mt-6 pb-safe">
         <Image
           src="/moneybag.png"
           alt="Money Bag"
