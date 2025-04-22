@@ -1,6 +1,6 @@
 "use client"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 interface TokenPosition {
   id: number
@@ -19,6 +19,10 @@ interface TokenPosition {
 }
 
 export default function Background() {
+  const [isPanning, setIsPanning] = useState(false);
+  const backgroundRef = useRef<HTMLDivElement>(null);
+  const [panLimits, setPanLimits] = useState({ x: 0, y: 0 });
+
   // Define token positions
   const [tokens, setTokens] = useState<TokenPosition[]>([
     {
@@ -292,100 +296,167 @@ export default function Background() {
     setTokens(animatedTokens);
   }, []);
 
+  // Calculate safe panning limits based on viewport size
+  useEffect(() => {
+    // Function to calculate max panning values to avoid revealing black space
+    const calculatePanLimits = () => {
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const backgroundWidth = 1920;
+      const backgroundHeight = 1080;
+      
+      // Calculate how much of the background extends beyond the viewport
+      const overflowX = Math.max(0, backgroundWidth - viewportWidth);
+      const overflowY = Math.max(0, backgroundHeight - viewportHeight);
+      
+      // Calculate maximum safe percentage to translate
+      // This ensures we never pan beyond the edge of the background
+      const maxTranslateX = Math.min(20, (overflowX / backgroundWidth) * 100);
+      const maxTranslateY = Math.min(20, (overflowY / backgroundHeight) * 100);
+      
+      setPanLimits({ x: maxTranslateX, y: maxTranslateY });
+      
+      // Also update panning state
+      setIsPanning(viewportWidth < backgroundWidth || viewportHeight < backgroundHeight);
+    };
+
+    // Calculate on initial load
+    calculatePanLimits();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', calculatePanLimits);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', calculatePanLimits);
+  }, []);
+
   return (
-    <div className="relative w-[1920px] h-[1080px] overflow-hidden">
-      {/* Base gradient background */}
-      <Image
-        src="/color bg.png"
-        alt="Background Gradient"
-        fill
-        className="object-cover"
-        priority
-      />
+    <div className="relative w-full h-full overflow-hidden">
+      <div 
+        ref={backgroundRef}
+        className={`relative w-[1920px] h-[1080px] ${isPanning ? 'panning-background' : ''}`}
+        style={{
+          // Apply dynamic CSS variables for animation limits
+          '--max-x': `${panLimits.x}%`,
+          '--max-y': `${panLimits.y}%`,
+        } as React.CSSProperties}
+      >
+        {/* Base gradient background */}
+        <Image
+          src="/color bg.png"
+          alt="Background Gradient"
+          fill
+          className="object-cover"
+          priority
+        />
 
-      <style jsx global>{`
-        @keyframes float-up {
-          0% {
-            transform: translateY(0) rotate(0deg);
+        <style jsx global>{`
+          @keyframes float-up {
+            0% {
+              transform: translateY(0) rotate(0deg);
+            }
+            50% {
+              transform: translateY(-10px) rotate(1deg);
+            }
+            100% {
+              transform: translateY(0) rotate(0deg);
+            }
           }
-          50% {
-            transform: translateY(-10px) rotate(1deg);
-          }
-          100% {
-            transform: translateY(0) rotate(0deg);
-          }
-        }
 
-        @keyframes float-down {
-          0% {
-            transform: translateY(0) rotate(0deg);
+          @keyframes float-down {
+            0% {
+              transform: translateY(0) rotate(0deg);
+            }
+            50% {
+              transform: translateY(10px) rotate(-1deg);
+            }
+            100% {
+              transform: translateY(0) rotate(0deg);
+            }
           }
-          50% {
-            transform: translateY(10px) rotate(-1deg);
+          
+          @keyframes pulse {
+            0% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.05);
+            }
+            100% {
+              transform: scale(1);
+            }
           }
-          100% {
-            transform: translateY(0) rotate(0deg);
-          }
-        }
-        
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.05);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
 
-        .token-container {
-          animation-timing-function: ease-in-out;
-          animation-iteration-count: infinite;
-        }
+          @keyframes pan {
+            0% {
+              transform: translate(0%, 0%);
+            }
+            25% {
+              transform: translate(calc(-1 * var(--max-x)), calc(-0.5 * var(--max-y)));
+            }
+            50% {
+              transform: translate(calc(-0.7 * var(--max-x)), calc(-1 * var(--max-y)));
+            }
+            75% {
+              transform: translate(calc(-0.3 * var(--max-x)), calc(-0.8 * var(--max-y)));
+            }
+            100% {
+              transform: translate(0%, 0%);
+            }
+          }
 
-        .token-float-up {
-          animation-name: float-up;
-        }
+          .token-container {
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+          }
 
-        .token-float-down {
-          animation-name: float-down;
-        }
-        
-        .token-image {
-          animation: pulse infinite;
-          animation-timing-function: ease-in-out;
-        }
-      `}</style>
+          .token-float-up {
+            animation-name: float-up;
+          }
 
-      {/* Token images */}
-      {tokens.map((token) => (
-        <div
-          key={token.id}
-          className={`absolute token-container ${token.id % 2 === 0 ? 'token-float-up' : 'token-float-down'}`}
-          style={{
-            top: token.top,
-            left: token.left,
-            zIndex: token.zIndex || 10,
-            animationDuration: token.floatDuration,
-            animationDelay: token.floatDelay,
-          }}
-        >
-          <Image
-            src={token.src || "/placeholder.svg"}
-            alt={token.alt}
-            width={token.size*2}
-            height={token.size*2}
-            className={`token-image ${token.blur ? `blur-${token.blur}` : ""}`}
-            style={{ 
-              opacity: token.opacity || 1,
-              animationDuration: token.pulseDuration,
-              animationDelay: token.pulseDelay
+          .token-float-down {
+            animation-name: float-down;
+          }
+          
+          .token-image {
+            animation: pulse infinite;
+            animation-timing-function: ease-in-out;
+          }
+
+          .panning-background {
+            animation: pan 90s infinite ease-in-out;
+            transform-origin: center center;
+          }
+        `}</style>
+
+        {/* Token images */}
+        {tokens.map((token) => (
+          <div
+            key={token.id}
+            className={`absolute token-container ${token.id % 2 === 0 ? 'token-float-up' : 'token-float-down'}`}
+            style={{
+              top: token.top,
+              left: token.left,
+              zIndex: token.zIndex || 10,
+              animationDuration: token.floatDuration,
+              animationDelay: token.floatDelay,
             }}
-          />
-        </div>
-      ))}
+          >
+            <Image
+              src={token.src || "/placeholder.svg"}
+              alt={token.alt}
+              width={token.size*2}
+              height={token.size*2}
+              className={`token-image ${token.blur ? `blur-${token.blur}` : ""}`}
+              style={{ 
+                opacity: token.opacity || 1,
+                animationDuration: token.pulseDuration,
+                animationDelay: token.pulseDelay
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
