@@ -1,0 +1,33 @@
+.token-stroke {
+  -webkit-text-stroke-width: 0.9px;
+  -webkit-text-stroke-color: #FFF;
+} 
+
+.green-stroke {
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: #8AF337;
+} 
+
+/* Light bold - subtle emphasis */
+.light-bold {
+  -webkit-text-stroke-width: 0.3px;
+  -webkit-text-stroke-color: currentColor;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+/* Medium bold - standard emphasis */
+.medium-bold {
+  -webkit-text-stroke-width: 0.6px;
+  -webkit-text-stroke-color: currentColor;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Strong bold - heavy emphasis */
+.strong-bold {
+  -webkit-text-stroke-width: 0.9px;
+  -webkit-text-stroke-color: currentColor;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+} 
