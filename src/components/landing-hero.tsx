@@ -5,7 +5,7 @@ import { Users } from "lucide-react"
 import Image from "next/image"
 import { Klee_One } from "next/font/google"
 import "./token-fight.css"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
 const klee = Klee_One({
   weight: ["400", "600"],
@@ -26,37 +26,42 @@ interface LandingHeroProps {
 }
 
 export function LandingHero({ referrerData }: LandingHeroProps) {
-  // Track viewport height to handle mobile browser issues
-  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
-
-  // Effect to handle mobile viewport height changes
+  // Effect to set the CSS custom property for viewport height
   useEffect(() => {
-    // Set initial viewport height
-    setViewportHeight(window.innerHeight);
+    // First we get the viewport height and we multiply it by 1% to get a value for a vh unit
+    const vh = window.innerHeight * 0.01;
+    // Then we set the value in the --vh custom property to the root of the document
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
 
-    // Function to update viewport height when size changes
-    const handleResize = () => {
-      setViewportHeight(window.innerHeight);
+    // We create a function to update the property on resize/orientation change
+    const updateVhProperty = () => {
+      const newVh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${newVh}px`);
     };
 
-    // Add event listeners for resize and orientation change
+    // Add event listeners with a debounced approach to avoid too many updates
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(updateVhProperty, 250);
+    };
+
     window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-    
+    window.addEventListener('orientationchange', () => {
+      // Orientation change needs a slight delay to get accurate values
+      setTimeout(updateVhProperty, 50);
+    });
+
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
+      window.removeEventListener('orientationchange', updateVhProperty);
+      clearTimeout(resizeTimeout);
     };
   }, []);
 
-  // Calculate dynamic style for container
-  const containerStyle = viewportHeight ? {
-    minHeight: `${viewportHeight}px`
-  } : undefined;
-
   return (
-    <div className="z-10 flex flex-col items-center justify-between px-3 sm:px-4 md:px-5 lg:px-6 pb-safe pt-10" style={containerStyle}>
+    <div className="z-10 flex flex-col items-center justify-between real-vh px-3 sm:px-4 md:px-5 lg:px-6 pb-10 pt-10">
       {/* Empty flex space at top to help with centering */}
       <div className="flex-grow" />
       
@@ -97,8 +102,8 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
       {/* Empty flex space to push content to center */}
       <div className="flex-grow" />
 
-      {/* Footer with safe area padding */}
-      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-white/90 text-xs sm:text-sm md:text-xl max-w-xs sm:max-w-sm md:max-w-none text-center sm:text-left mt-6 pb-safe">
+      {/* Footer */}
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-white/90 text-xs sm:text-sm md:text-xl max-w-xs sm:max-w-sm md:max-w-none text-center sm:text-left mt-6 pb-6">
         <Image
           src="/moneybag.png"
           alt="Money Bag"
