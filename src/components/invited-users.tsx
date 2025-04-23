@@ -43,9 +43,9 @@ export default function InvitedUsers({ users }: InvitedUsersProps) {
               )}
             </div>
           </div>
-          <span className="font-semibold text-base bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent break-all">
+          <p className="font-semibold text-base bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent break-all font-bold">
             {user.username}
-          </span>
+          </p>
         </div>
       ))}
     </div>

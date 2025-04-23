@@ -35,7 +35,7 @@ export default function RootLayout({
         <link rel="icon" href="/logo.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col relative overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col relative`}
       >
         {/* Background Component with fixed dimensions */}
         <div className="absolute inset-0 z-0 flex items-center justify-center">

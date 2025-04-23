@@ -202,7 +202,7 @@ export default function Home() {
   // Handle loading state or not mounted
   if (loading || !mounted) {
     return (
-      <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+      <main className="relative flex min-h-screen flex-col items-center justify-center">
         <div className="relative flex items-center justify-center z-10">
           <div className="absolute inset-0 rounded-full bg-[#8af337]/20 blur-xl animate-pulse"></div>
           <div className={`${klee.className} relative text-xl font-bold text-[#8af337] animate-pulse`}>Loading TokenFight...</div>
@@ -212,7 +212,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+    <main className="relative flex min-h-screen flex-col items-center justify-center">
       {!authenticated ? (
         // Hero Section - Only shown when not authenticated
         <LandingHero referrerData={pendingReferrer} />

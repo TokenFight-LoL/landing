@@ -43,6 +43,24 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* Global scrollbar styles to ensure they apply everywhere */
+::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(138, 243, 55, 0.4) !important;
+  border-radius: 20px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(138, 243, 55, 0.6) !important;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -119,8 +137,32 @@
     @apply border-border outline-ring/50;
   }
   
-  body {
+  html, body {
     @apply bg-background text-foreground;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(138, 243, 55, 0.4) transparent;
+  }
+
+  /* Stronger targeting for WebKit browsers */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    width: 4px !important;
+  }
+
+  html::-webkit-scrollbar-track,
+  body::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb {
+    background: rgba(138, 243, 55, 0.4) !important;
+    border-radius: 20px !important;
+  }
+
+  html::-webkit-scrollbar-thumb:hover,
+  body::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 243, 55, 0.6) !important;
   }
   
   /* Utility class for using the real viewport height with CSS vars */
@@ -160,29 +202,4 @@
 
 .animate-glow-pulse {
   animation: glowPulse 2s infinite;
-}
-
-/* Custom scrollbar styling */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 2px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(138, 243, 55, 0.2);
-  border-radius: 20px;
-  transition: background 0.2s ease;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(138, 243, 55, 0.4);
-}
-
-/* For Firefox */
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(118, 118, 118, 0.2) transparent;
 }
