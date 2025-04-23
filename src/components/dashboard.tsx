@@ -117,9 +117,9 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
         <div className="space-y-5">          
           {/* User Profile Card */}
           <div className={`w-full overflow-hidden relative ${cardBgClass}`}>
-            <div className="px-[36px] py-[30px] relative">
+            <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px] relative">
               <div className="flex items-center">
-                <div className="h-14 w-14 mr-4 rounded-full bg-[#8af337]/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 mr-3 md:mr-4 rounded-full bg-[#8af337]/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {user?.twitter?.profilePictureUrl ? (
                     <img
                       src={user.twitter.profilePictureUrl || "/placeholder.svg"}
@@ -127,45 +127,45 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <UserIcon className="h-6 w-6 text-[#8af337]" />
+                    <UserIcon className="h-5 w-5 md:h-6 md:w-6 text-[#8af337]" />
                   )}
                 </div>
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-1">
-                    <h2 className={`${sfPro.className} text-[24px] text-[#00FDEC] leading-normal font-semibold`} style={{ fontWeight: 590 }}>
+                    <h2 className={`${sfPro.className} text-[18px] sm:text-[20px] md:text-[24px] text-[#00FDEC] leading-normal font-semibold`} style={{ fontWeight: 590 }}>
                       @{displayName}
                     </h2>
                     <img 
                       src="/right-from-bracket.svg" 
                       alt="right from bracket" 
-                      className="h-4 w-4"
+                      className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
                     />
                   </div>
-                  <p className={`${sfPro.className} text-sm text-gray-400`}>{userId}</p>
+                  <p className={`${sfPro.className} text-xs sm:text-sm text-gray-400`}>{userId}</p>
                 </div>
                 
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="rounded-full hover:bg-[#ff5a5a]/10 hover:text-[#ff5a5a] flex-shrink-0" 
+                  className="rounded-full hover:bg-[#ff5a5a]/10 hover:text-[#ff5a5a] flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10" 
                   onClick={logout}
                   title="Logout"
                 >
-                  <Power className="h-5 w-5" />
+                  <Power className="h-4 w-4 sm:h-4.5 sm:w-4.5 md:h-5 md:w-5" />
                 </Button>
               </div>
               
               {/* Stats Cards - Moved inside the user profile card */}
-              <div className="grid grid-cols-2 gap-4 mt-5">
-                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-4 text-center">
-                  <h3 className={`${sfPro.className} text-gray-400 text-sm mb-1`}>Referrals Invited</h3>
-                  <p className={`${sfPro.className} text-2xl font-bold text-white`}>{inviteCount}</p>
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 mt-4 md:mt-5">
+                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3 md:p-4 text-center">
+                  <h3 className={`${sfPro.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Referrals Invited</h3>
+                  <p className={`${sfPro.className} text-xl md:text-2xl font-bold text-white`}>{inviteCount}</p>
                 </div>
                 
-                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-4 text-center">
-                  <h3 className={`${sfPro.className} text-gray-400 text-sm mb-1`}>Rewards Earned 💎</h3>
-                  <p className={`${sfPro.className} text-xl font-bold text-[#8af337]`}>coming soon</p>
+                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3 md:p-4 text-center">
+                  <h3 className={`${sfPro.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Rewards Earned 💎</h3>
+                  <p className={`${sfPro.className} text-lg md:text-xl font-bold text-[#8af337]`}>coming soon</p>
                 </div>
               </div>
             </div>
@@ -173,34 +173,34 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
           
           {/* Referral Link Card */}
           <div className={`w-full ${cardBgClass}`}>
-            <div className="px-[36px] py-[30px]">
-              <h3 className={`${sfPro.className} text-[24px] text-white leading-normal mb-3`} style={{ fontWeight: 590 }}>Your referral link</h3>
+            <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
+              <h3 className={`${sfPro.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2 md:mb-3`} style={{ fontWeight: 590 }}>Your referral link</h3>
               
               <div 
-                className="flex h-[40px] px-[24px] py-[8px] justify-between items-center flex-1 rounded-[10px] border border-[#8AF337] bg-[rgba(55,55,55,0.50)] backdrop-blur-[10px] mb-2 cursor-pointer"
+                className="flex h-[36px] md:h-[40px] px-3 sm:px-4 md:px-[24px] py-[6px] md:py-[8px] justify-between items-center flex-1 rounded-[10px] border border-[#8AF337] bg-[rgba(55,55,55,0.50)] backdrop-blur-[10px] mb-2 cursor-pointer"
                 onClick={copyReferralLink}
               >
-                <div className={`${sfPro.className} text-[16px] text-white font-normal leading-normal overflow-hidden whitespace-nowrap overflow-ellipsis`}>
+                <div className={`${sfPro.className} text-[14px] md:text-[16px] text-white font-normal leading-normal overflow-hidden whitespace-nowrap overflow-ellipsis`}>
                   {`${origin}/ref/${referralCode}`}
                 </div>
                 <div className="flex items-center">
-                  <Copy className="h-4 w-4 text-[#8AF337]" />
-                  <span className={`${sfPro.className} text-[16px] text-[#8AF337] font-normal leading-normal ml-1`}>Copy</span>
+                  <Copy className="h-3.5 w-3.5 md:h-4 md:w-4 text-[#8AF337]" />
+                  <span className={`${sfPro.className} text-[14px] md:text-[16px] text-[#8AF337] font-normal leading-normal ml-1`}>Copy</span>
                 </div>
               </div>
               
               <div className="flex justify-between items-center">
-                <p className={`${sfPro.className} text-[16px] text-[#A2A2A2] font-normal leading-normal`}>Share your link on twitter!</p>
+                <p className={`${sfPro.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal`}>Share your link on twitter!</p>
                 <button
                   onClick={shareOnTwitter}
-                  className="flex h-[40px] px-[24px] py-[8px] items-center gap-[10px] rounded-md border border-[#8AF337] bg-transparent hover:bg-[rgba(138,243,55,0.1)]"
+                  className="flex h-[36px] md:h-[40px] px-4 sm:px-5 md:px-[24px] py-[6px] md:py-[8px] items-center gap-[6px] md:gap-[10px] rounded-md border border-[#8AF337] bg-transparent hover:bg-[rgba(138,243,55,0.1)]"
                 >
-                  <span className={`${sfPro.className} text-[16px] text-[#8AF337] leading-normal`} style={{ fontWeight: 590 }}>Share</span>
+                  <span className={`${sfPro.className} text-[14px] md:text-[16px] text-[#8AF337] leading-normal`} style={{ fontWeight: 590 }}>Share</span>
                 </button>
               </div>
               
               {/* Copied message */}
-              <div className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-[#8af337] text-black text-sm font-medium rounded-md transition-opacity duration-300 z-50 ${showCopiedMessage ? 'opacity-100' : 'opacity-0'} ${sfPro.className}`}>
+              <div className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 px-2 sm:px-3 py-0.5 sm:py-1 bg-[#8af337] text-black text-xs sm:text-sm font-medium rounded-md transition-opacity duration-300 z-50 ${showCopiedMessage ? 'opacity-100' : 'opacity-0'} ${sfPro.className}`}>
                 Copied!
               </div>
             </div>
@@ -208,53 +208,53 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
 
           {/* My Referrals Card */}
           <div className={`w-full ${cardBgClass}`}>
-            <div className="px-[36px] py-[30px]">
-              <h3 className={`${sfPro.className} text-[24px] text-white leading-normal mb-2`} style={{ fontWeight: 590 }}>My Referrals</h3>
-              <p className={`${sfPro.className} text-[16px] text-[#A2A2A2] font-normal leading-normal mb-4`}>You earn 2% of the trading fees from every person you invite (when the game launches).</p>
+            <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
+              <h3 className={`${sfPro.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2`} style={{ fontWeight: 590 }}>My Referrals</h3>
+              <p className={`${sfPro.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal mb-3 md:mb-4`}>You earn 2% of the trading fees from every person you invite (when the game launches).</p>
               
               {invitedUsers.length > 0 ? (
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {invitedUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 rounded-[10px] bg-[rgba(0,0,0,0.20)]">
+                    <div key={user.id} className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-[10px] bg-[rgba(0,0,0,0.20)]">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
+                        <div className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full overflow-hidden mr-2 md:mr-3">
                           {user.avatarUrl ? (
                             <img src={user.avatarUrl} alt={user.username} className="h-full w-full object-cover" />
                           ) : (
                             <div className="h-full w-full bg-[#8af337]/20 flex items-center justify-center">
-                              <UserIcon className="h-5 w-5 text-[#8af337]" />
+                              <UserIcon className="h-4 w-4 md:h-5 md:w-5 text-[#8af337]" />
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className={`${sfPro.className} text-[14px] text-white font-normal leading-normal`}>{user.username}</p>
+                          <p className={`${sfPro.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal`}>{user.username}</p>
                         </div>
                       </div>
-                      <p className={`${sfPro.className} text-[14px] text-white font-normal leading-normal opacity-60`}>Joined recently</p>
+                      <p className={`${sfPro.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal opacity-60`}>Joined recently</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 px-6 rounded-[10px] bg-[rgba(0,0,0,0.20)]">
+                <div className="text-center py-5 sm:py-6 md:py-8 px-4 sm:px-5 md:px-6 rounded-[10px] bg-[rgba(0,0,0,0.20)]">
                   <div className="flex justify-center">
-                    <Users className="h-8 w-8 text-[#8af337]/40 mx-auto mb-3" />
+                    <Users className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-[#8af337]/40 mx-auto mb-2 md:mb-3" />
                   </div>
-                  <p className={`${sfPro.className} text-[14px] text-white font-normal leading-normal mb-2`}>No invites yet.</p>
+                  <p className={`${sfPro.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal mb-1 md:mb-2`}>No invites yet.</p>
                 </div>
               )}
             </div>
           </div>
           
           {/* Footer note */}
-          <div className="flex items-center justify-center mt-6 text-center">
+          <div className="flex items-center justify-center mt-4 sm:mt-5 md:mt-6 text-center">
             <Image 
               src="/moneybag.png" 
               alt="Money Bag" 
-              width={30} 
-              height={30}
-              className="mr-2"
+              width={24}
+              height={24}
+              className="mr-1.5 sm:mr-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
             />
-            <p className={`${sfPro.className} text-sm text-[#8af337]`}>Share now and earn rewards when the game launches!</p>
+            <p className={`${sfPro.className} text-xs sm:text-sm text-[#8af337]`}>Share now and earn rewards when the game launches!</p>
           </div>
         </div>
       </div>
