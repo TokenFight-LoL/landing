@@ -100,7 +100,7 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
         {/* Main header */}
         <div className="text-center mb-3">
           <h1 className={`${klee.className} text-[24px] sm:text-[28px] md:text-[32px] text-white leading-normal token-stroke`}>Invite & Earn</h1>
-          <p className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal strong-bold`}>
+          <p className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal`}>
             Earn 2% of your friends&apos; trading fees on <span className="text-[#8af337]"><img src="/logo.png" alt="Token Fight Logo" width={20} height={20} className="inline-block mr-1 w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5" /> Token Fight!</span> when we&apos;re live!
           </p>
         </div>
