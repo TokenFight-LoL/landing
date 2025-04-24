@@ -1,5 +1,14 @@
 "use client"
 
+import { Klee_One } from "next/font/google"
+
+// Font definitions
+const klee = Klee_One({
+  weight: ["400", "600"],
+  subsets: ["latin"],
+  display: "swap",
+})
+
 interface User {
   id: string
   username: string
@@ -39,11 +48,11 @@ export default function InvitedUsers({ users }: InvitedUsersProps) {
                   onError={handleImageError}
                 />
               ) : (
-                <span>{user.avatar || '🧑‍💻'}</span>
+                <span className={klee.className}>{user.avatar || '🧑‍💻'}</span>
               )}
             </div>
           </div>
-          <p className="font-semibold text-base bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent break-all font-bold">
+          <p className={`${klee.className} text-base bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent break-all strong-bold`}>
             {user.username}
           </p>
         </div>

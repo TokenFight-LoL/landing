@@ -5,7 +5,6 @@ import { Copy, User as UserIcon, Power, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { Klee_One } from "next/font/google"
-import localFont from 'next/font/local'
 import type { User as PrivyUser } from '@privy-io/react-auth';
 import type { User as DbUser } from "@/lib/api"
 
@@ -17,6 +16,7 @@ const klee = Klee_One({
 })
 
 // Define SF Pro font (local)
+/*
 const sfPro = localFont({
   src: [
     {
@@ -37,6 +37,7 @@ const sfPro = localFont({
   ],
   display: 'swap'
 })
+*/
 
 // Type for invited users
 type InvitedUser = {
@@ -98,16 +99,16 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
       <div className="flex flex-col items-center px-4 sm:px-6 md:px-8 pt-6 pb-4">        
         {/* Main header */}
         <div className="text-center mb-3">
-          <h1 className={`${klee.className} text-[32px] font-semibold text-white leading-normal [text-shadow:_0_0_1px_#fff] [-webkit-text-stroke-width:_0.5px] [-webkit-text-stroke-color:_#fff]`}>Invite & Earn</h1>
-          <p className={`${klee.className} text-[24px] font-semibold text-white leading-normal`}>
-            Earn 2% of your friends&apos; trading fees on <span className="text-[#8af337]"><img src="/logo.png" alt="Token Fight Logo" width={20} height={20} className="inline-block mr-1" /> Token Fight!</span> when we&apos;re live!
+          <h1 className={`${klee.className} text-[24px] sm:text-[28px] md:text-[32px] text-white leading-normal token-stroke`}>Invite & Earn</h1>
+          <p className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal strong-bold`}>
+            Earn 2% of your friends&apos; trading fees on <span className="text-[#8af337]"><img src="/logo.png" alt="Token Fight Logo" width={20} height={20} className="inline-block mr-1 w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5" /> Token Fight!</span> when we&apos;re live!
           </p>
         </div>
 
         {/* Referrer info (if present) */}
         {referrer && (
           <div className="relative w-full overflow-hidden text-center text-sm px-3 py-2 rounded-lg bg-[#1e2333]/70 border border-[#2e3446] mb-1">
-            <p className={sfPro.className}>You were invited by <span className="font-medium text-[#8af337]">{referrer.twitter_username || referrer.email || 'a TokenFight community member'}</span></p>
+            <p className={klee.className}>You were invited by <span className="medium-bold text-[#8af337]">{referrer.twitter_username || referrer.email || 'a TokenFight community member'}</span></p>
           </div>
         )}
       </div>
@@ -133,7 +134,7 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-1">
-                    <h2 className={`${sfPro.className} text-[18px] sm:text-[20px] md:text-[24px] text-[#00FDEC] leading-normal font-semibold`} style={{ fontWeight: 590 }}>
+                    <h2 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-[#00FDEC] leading-normal medium-bold`}>
                       @{displayName}
                     </h2>
                     <img 
@@ -142,7 +143,7 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
                       className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
                     />
                   </div>
-                  <p className={`${sfPro.className} text-xs sm:text-sm text-gray-400`}>{userId}</p>
+                  <p className={`${klee.className} text-xs sm:text-sm text-gray-400`}>{userId}</p>
                 </div>
                 
                 <Button 
@@ -159,13 +160,13 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
               {/* Stats Cards - Moved inside the user profile card */}
               <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 mt-4 md:mt-5">
                 <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3 md:p-4 text-center">
-                  <h3 className={`${sfPro.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Referrals Invited</h3>
-                  <p className={`${sfPro.className} text-xl md:text-2xl font-bold text-white`}>{inviteCount}</p>
+                  <h3 className={`${klee.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Referrals Invited</h3>
+                  <p className={`${klee.className} text-xl md:text-2xl text-white strong-bold`}>{inviteCount}</p>
                 </div>
                 
                 <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3 md:p-4 text-center">
-                  <h3 className={`${sfPro.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Rewards Earned 💎</h3>
-                  <p className={`${sfPro.className} text-lg md:text-xl font-bold text-[#8af337]`}>coming soon</p>
+                  <h3 className={`${klee.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Rewards Earned 💎</h3>
+                  <p className={`${klee.className} text-lg md:text-xl text-[#8af337] strong-bold`}>coming soon</p>
                 </div>
               </div>
             </div>
@@ -174,33 +175,33 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
           {/* Referral Link Card */}
           <div className={`w-full ${cardBgClass}`}>
             <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
-              <h3 className={`${sfPro.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2 md:mb-3`} style={{ fontWeight: 590 }}>Your referral link</h3>
+              <h3 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2 md:mb-3 medium-bold`}>Your referral link</h3>
               
               <div 
                 className="flex h-[36px] md:h-[40px] px-3 sm:px-4 md:px-[24px] py-[6px] md:py-[8px] justify-between items-center flex-1 rounded-[10px] border border-[#8AF337] bg-[rgba(55,55,55,0.50)] backdrop-blur-[10px] mb-2 cursor-pointer"
                 onClick={copyReferralLink}
               >
-                <div className={`${sfPro.className} text-[14px] md:text-[16px] text-white font-normal leading-normal overflow-hidden whitespace-nowrap overflow-ellipsis`}>
+                <div className={`${klee.className} text-[14px] md:text-[16px] text-white font-normal leading-normal overflow-hidden whitespace-nowrap overflow-ellipsis`}>
                   {`${origin}/ref/${referralCode}`}
                 </div>
                 <div className="flex items-center">
                   <Copy className="h-3.5 w-3.5 md:h-4 md:w-4 text-[#8AF337]" />
-                  <span className={`${sfPro.className} text-[14px] md:text-[16px] text-[#8AF337] font-normal leading-normal ml-1`}>Copy</span>
+                  <span className={`${klee.className} text-[14px] md:text-[16px] text-[#8AF337] font-normal leading-normal ml-1`}>Copy</span>
                 </div>
               </div>
               
               <div className="flex justify-between items-center">
-                <p className={`${sfPro.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal`}>Share your link on twitter!</p>
+                <p className={`${klee.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal`}>Share your link on twitter!</p>
                 <button
                   onClick={shareOnTwitter}
                   className="flex h-[36px] md:h-[40px] px-4 sm:px-5 md:px-[24px] py-[6px] md:py-[8px] items-center gap-[6px] md:gap-[10px] rounded-md border border-[#8AF337] bg-transparent hover:bg-[rgba(138,243,55,0.1)]"
                 >
-                  <span className={`${sfPro.className} text-[14px] md:text-[16px] text-[#8AF337] leading-normal`} style={{ fontWeight: 590 }}>Share</span>
+                  <span className={`${klee.className} text-[14px] md:text-[16px] text-[#8AF337] leading-normal medium-bold`}>Share</span>
                 </button>
               </div>
               
               {/* Copied message */}
-              <div className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 px-2 sm:px-3 py-0.5 sm:py-1 bg-[#8af337] text-black text-xs sm:text-sm font-medium rounded-md transition-opacity duration-300 z-50 ${showCopiedMessage ? 'opacity-100' : 'opacity-0'} ${sfPro.className}`}>
+              <div className={`fixed top-1/4 left-1/2 transform -translate-x-1/2 px-2 sm:px-3 py-0.5 sm:py-1 bg-[#8af337] text-black text-xs sm:text-sm medium-bold rounded-md transition-opacity duration-300 z-50 ${showCopiedMessage ? 'opacity-100' : 'opacity-0'} ${klee.className}`}>
                 Copied!
               </div>
             </div>
@@ -209,8 +210,8 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
           {/* My Referrals Card */}
           <div className={`w-full ${cardBgClass}`}>
             <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
-              <h3 className={`${sfPro.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2`} style={{ fontWeight: 590 }}>My Referrals</h3>
-              <p className={`${sfPro.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal mb-3 md:mb-4`}>You earn 2% of the trading fees from every person you invite (when the game launches).</p>
+              <h3 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2 medium-bold`}>Your Referrals</h3>
+              <p className={`${klee.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal mb-3 md:mb-4`}>You earn 2% of the trading fees from every person you invite (when the game launches).</p>
               
               {invitedUsers.length > 0 ? (
                 <div className="space-y-1.5 sm:space-y-2">
@@ -227,10 +228,10 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
                           )}
                         </div>
                         <div>
-                          <p className={`${sfPro.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal`}>{user.username}</p>
+                          <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal`}>{user.username}</p>
                         </div>
                       </div>
-                      <p className={`${sfPro.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal opacity-60`}>Joined recently</p>
+                      <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal opacity-60`}>Joined recently</p>
                     </div>
                   ))}
                 </div>
@@ -239,7 +240,7 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
                   <div className="flex justify-center">
                     <Users className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-[#8af337]/40 mx-auto mb-2 md:mb-3" />
                   </div>
-                  <p className={`${sfPro.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal mb-1 md:mb-2`}>No invites yet.</p>
+                  <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal mb-1 md:mb-2`}>No invites yet.</p>
                 </div>
               )}
             </div>
@@ -254,7 +255,7 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
               height={24}
               className="mr-1.5 sm:mr-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
             />
-            <p className={`${sfPro.className} text-xs sm:text-sm text-[#8af337]`}>Share now and earn rewards when the game launches!</p>
+            <p className={`${klee.className} text-xs sm:text-sm text-[#8af337]`}>Share now and earn rewards when the game launches!</p>
           </div>
         </div>
       </div>
