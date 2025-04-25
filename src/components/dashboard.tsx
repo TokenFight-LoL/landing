@@ -113,7 +113,7 @@ export default function Dashboard({
   return (
     <section className="z-10 w-full max-w-lg mx-auto flex flex-col h-screen">
       {/* Fixed header section */}
-      <div className="flex flex-col items-center px-4 sm:px-6 md:px-8 pt-6 pb-4">        
+      <div className="flex flex-col items-center px-5 sm:px-6 md:px-8 pt-6 pb-4">        
         {/* Main header */}
         <div className="text-center mb-3">
           <h1 className={`${klee.className} text-[24px] sm:text-[28px] md:text-[32px] text-white leading-normal token-stroke`}>Invite & Earn</h1>
@@ -122,27 +122,27 @@ export default function Dashboard({
           </p>
         </div>
 
-        {/* Genesis users count display */}
-        <div className="relative w-full overflow-hidden text-center text-sm px-3 py-2 rounded-lg bg-[#1e2333]/70 border border-[#2e3446] mb-1">
+        {/* Genesis users count display - more subtle */}
+        <div className="text-center text-sm mb-1 text-gray-300">
           <p className={klee.className}>
             ⚡ <span className="text-[#8af337]">{genesisSpotsLeft}</span>/{genesisSpotsTotal} Genesis spots left
           </p>
         </div>
 
-        {/* Referrer info (if present) */}
+        {/* Referrer info (if present) - more subtle */}
         {referrer && (
-          <div className="relative w-full overflow-hidden text-center text-sm px-3 py-2 rounded-lg bg-[#1e2333]/70 border border-[#2e3446] mb-1">
+          <div className="text-center text-sm mb-2 text-gray-300">
             <p className={klee.className}>You were invited by <span className="medium-bold text-[#8af337]">{referrer.twitter_username || referrer.email || 'a TokenFight community member'}</span></p>
           </div>
         )}
       </div>
       
       {/* Scrollable content container */}
-      <div className="flex-1 pb-6 pl-4 pr-1 sm:pl-6 sm:pr-1 md:pl-8 md:pr-1">
+      <div className="flex-1 pb-6 pl-5 pr-5 sm:pl-6 sm:pr-6 md:pl-8 md:pr-8">
         <div className="space-y-5">          
           {/* User Profile Card */}
           <div className={`w-full overflow-hidden relative ${cardBgClass}`}>
-            <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px] relative">
+            <div className="px-5 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px] relative">
               {isGenesis && (
                 <div className="text-center mb-4">
                   <span className="text-sm md:text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-gradient-x">
@@ -165,7 +165,7 @@ export default function Dashboard({
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-1">
-                    <h2 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-[#00FDEC] leading-normal medium-bold`}>
+                    <h2 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-[#00FDEC] leading-normal medium-bold truncate max-w-[150px] sm:max-w-[180px] md:max-w-[220px]`}>
                       @{displayName}
                     </h2>
                     <img 
@@ -174,7 +174,7 @@ export default function Dashboard({
                       className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
                     />
                   </div>
-                  <p className={`${klee.className} text-xs sm:text-sm text-gray-400`}>{userId}</p>
+                  <p className={`${klee.className} text-xs sm:text-sm text-gray-400 truncate max-w-[200px] sm:max-w-[250px]`}>{userId}</p>
                 </div>
                 
                 <Button 
@@ -189,13 +189,13 @@ export default function Dashboard({
               </div>
               
               {/* Stats Cards - Moved inside the user profile card */}
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 mt-4 md:mt-5">
-                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3 md:p-4 text-center">
+              <div className="grid grid-cols-2 gap-3 sm:gap-3 md:gap-4 mt-5 md:mt-6">
+                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3.5 md:p-4 text-center">
                   <h3 className={`${klee.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Referrals Invited</h3>
                   <p className={`${klee.className} text-xl md:text-2xl text-white strong-bold`}>{inviteCount}</p>
                 </div>
                 
-                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3 md:p-4 text-center">
+                <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3.5 md:p-4 text-center">
                   <h3 className={`${klee.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Rewards Earned 💎</h3>
                   <p className={`${klee.className} text-lg md:text-xl text-[#8af337] strong-bold`}>coming soon</p>
                 </div>
@@ -205,14 +205,14 @@ export default function Dashboard({
           
           {/* Referral Link Card */}
           <div className={`w-full ${cardBgClass}`}>
-            <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
+            <div className="px-5 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
               <h3 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2 md:mb-3 medium-bold`}>Your referral link</h3>
               
               <div 
-                className="flex h-[36px] md:h-[40px] px-3 sm:px-4 md:px-[24px] py-[6px] md:py-[8px] justify-between items-center flex-1 rounded-[10px] border border-[#8AF337] bg-[rgba(55,55,55,0.50)] backdrop-blur-[10px] mb-2 cursor-pointer"
+                className="flex h-[36px] md:h-[40px] px-4 sm:px-4 md:px-[24px] py-[6px] md:py-[8px] justify-between items-center flex-1 rounded-[10px] border border-[#8AF337] bg-[rgba(55,55,55,0.50)] backdrop-blur-[10px] mb-3 cursor-pointer"
                 onClick={copyReferralLink}
               >
-                <div className={`${klee.className} text-[14px] md:text-[16px] text-white font-normal leading-normal overflow-hidden whitespace-nowrap overflow-ellipsis`}>
+                <div className={`${klee.className} text-[14px] md:text-[16px] text-white font-normal leading-normal truncate max-w-[70%]`}>
                   {`${origin}/ref/${referralCode}`}
                 </div>
                 <div className="flex items-center">
@@ -222,7 +222,17 @@ export default function Dashboard({
               </div>
               
               <div className="flex justify-between items-center">
-                <p className={`${klee.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal`}>Share your link on twitter!</p>
+                <p className={`${klee.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal`}>
+                  Share your link on twitter!
+                  <a 
+                    href="https://x.com/tokenfightlol" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="ml-1.5 text-xs text-gray-400 hover:text-[#8af337] transition-colors inline-flex items-center"
+                  >
+                    <span className="underline">Follow us</span>
+                  </a>
+                </p>
                 <button
                   onClick={shareOnTwitter}
                   className="flex h-[36px] md:h-[40px] px-4 sm:px-5 md:px-[24px] py-[6px] md:py-[8px] items-center gap-[6px] md:gap-[10px] rounded-md border border-[#8AF337] bg-transparent hover:bg-[rgba(138,243,55,0.1)]"
@@ -240,14 +250,14 @@ export default function Dashboard({
 
           {/* My Referrals Card */}
           <div className={`w-full ${cardBgClass}`}>
-            <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
+            <div className="px-5 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
               <h3 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2 medium-bold`}>Your Referrals</h3>
               <p className={`${klee.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal mb-3 md:mb-4`}>You earn 2% of the trading fees from every person you invite (when the game launches).</p>
               
               {invitedUsers.length > 0 ? (
-                <div className="space-y-1.5 sm:space-y-2">
+                <div className="space-y-2 sm:space-y-2.5">
                   {invitedUsers.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-[10px] bg-[rgba(0,0,0,0.20)]">
+                    <div key={user.id} className="flex items-center justify-between p-3 sm:p-3 md:p-4 rounded-[10px] bg-[rgba(0,0,0,0.20)]">
                       <div className="flex items-center">
                         <div className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full overflow-hidden mr-2 md:mr-3">
                           {user.avatarUrl ? (
@@ -259,7 +269,7 @@ export default function Dashboard({
                           )}
                         </div>
                         <div>
-                          <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal`}>{user.username}</p>
+                          <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal truncate max-w-[120px] sm:max-w-[150px] md:max-w-[200px]`}>{user.username}</p>
                         </div>
                       </div>
                       <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal opacity-60`}>
@@ -297,15 +307,28 @@ export default function Dashboard({
           </div>
           
           {/* Footer note */}
-          <div className="flex items-center justify-center mt-4 sm:mt-5 md:mt-6 text-center">
-            <Image 
-              src="/moneybag.png" 
-              alt="Money Bag" 
-              width={24}
-              height={24}
-              className="mr-1.5 sm:mr-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
-            />
-            <p className={`${klee.className} text-xs sm:text-sm text-[#8af337]`}>Share now and earn rewards when the game launches!</p>
+          <div className="flex flex-col items-center justify-center mt-4 sm:mt-5 md:mt-6 text-center">
+            <div className="flex items-center mb-2">
+              <Image 
+                src="/moneybag.png" 
+                alt="Money Bag" 
+                width={24}
+                height={24}
+                className="mr-1.5 sm:mr-2 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
+              />
+              <p className={`${klee.className} text-xs sm:text-sm text-[#8af337]`}>Share now and earn rewards when the game launches!</p>
+            </div>
+            <a 
+              href="https://x.com/tokenfightlol" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center text-gray-400 hover:text-[#8af337] transition-colors text-xs"
+            >
+              <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              Follow @tokenfightlol
+            </a>
           </div>
         </div>
       </div>
