@@ -142,6 +142,13 @@ export default function Dashboard({
           {/* User Profile Card */}
           <div className={`w-full overflow-hidden relative ${cardBgClass}`}>
             <div className="px-4 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px] relative">
+              {isGenesis && (
+                <div className="text-center mb-4">
+                  <span className="text-sm md:text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-gradient-x">
+                    ⚡ You have claimed Genesis spot
+                  </span>
+                </div>
+              )}
               <div className="flex items-center">
                 <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 mr-3 md:mr-4 rounded-full bg-[#8af337]/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {user?.twitter?.profilePictureUrl ? (
@@ -165,11 +172,6 @@ export default function Dashboard({
                       alt="right from bracket" 
                       className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
                     />
-                    {isGenesis && (
-                      <span className="ml-1 text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-gradient-x">
-                        ⚡ Genesis user
-                      </span>
-                    )}
                   </div>
                   <p className={`${klee.className} text-xs sm:text-sm text-gray-400`}>{userId}</p>
                 </div>
