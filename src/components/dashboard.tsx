@@ -45,6 +45,7 @@ type InvitedUser = {
   username: string;
   avatar: string;
   avatarUrl: string;
+  joinedAt?: string;
 }
 
 interface DashboardProps {
@@ -261,7 +262,26 @@ export default function Dashboard({
                           <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal`}>{user.username}</p>
                         </div>
                       </div>
-                      <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal opacity-60`}>Joined recently</p>
+                      <p className={`${klee.className} text-[12px] sm:text-[13px] md:text-[14px] text-white font-normal leading-normal opacity-60`}>
+                        {user.joinedAt && user.joinedAt !== 'undefined' ? (
+                          <>Joined {
+                            (() => {
+                              try {
+                                return new Date(user.joinedAt).toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                });
+                              } catch (e) {
+                                console.error("Error formatting date:", e, user.joinedAt);
+                                return "recently";
+                              }
+                            })()
+                          }</>
+                        ) : (
+                          <>Joined recently</>
+                        )}
+                      </p>
                     </div>
                   ))}
                 </div>

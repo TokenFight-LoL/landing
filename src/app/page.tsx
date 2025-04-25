@@ -31,6 +31,7 @@ type InvitedUser = {
   username: string;
   avatar: string;
   avatarUrl: string;
+  joinedAt?: string;
 }
 
 export default function Home() {
@@ -173,13 +174,49 @@ export default function Home() {
             
             // Convert to format for InvitedUsers component
             const formattedInvites = userReferrals.map((referral) => {
+              // Make sure created_at is a string
+              console.log("Referral created_at raw value:", referral.created_at);
+              
+              let joinedAt = undefined;
+              
+              // Handle different timestamp formats
+              if (typeof referral.created_at === 'string') {
+                joinedAt = referral.created_at;
+              } else if (referral.created_at instanceof Date) {
+                joinedAt = referral.created_at.toISOString();
+              } else if (referral.created_at && typeof referral.created_at === 'object') {
+                // Handle Firebase Timestamp object with toDate method
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const timestampObj = referral.created_at as any;
+                if ('toDate' in timestampObj) {
+                  try {
+                    joinedAt = timestampObj.toDate().toISOString();
+                  } catch (e) {
+                    console.error("Error converting timestamp:", e);
+                  }
+                } 
+                // Handle raw Firebase Timestamp data with seconds field
+                else if ('seconds' in timestampObj) {
+                  try {
+                    joinedAt = new Date(timestampObj.seconds * 1000).toISOString();
+                  } catch (e) {
+                    console.error("Error converting timestamp seconds:", e);
+                  }
+                }
+              }
+              
+              console.log("Formatted joinedAt value:", joinedAt);
+                  
               return {
                 id: referral.id,
                 username: referral.referred?.twitter_username || 'Anonymous User',
                 avatar: '🧑‍💻', // Default emoji avatar as fallback
-                avatarUrl: referral.referred?.twitter_profile_pic || '' // Direct URL to profile pic
+                avatarUrl: referral.referred?.twitter_profile_pic || '', // Direct URL to profile pic
+                joinedAt // Use the formatted joinedAt value
               };
             });
+            
+            console.log("Final formatted invites:", formattedInvites);
             
             setInvitedUsers(formattedInvites)
             
