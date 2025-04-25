@@ -7,12 +7,15 @@ import {
   getReferrerByUserId as firebaseGetReferrerByUserId,
   getUserByReferralCode as firebaseGetUserByReferralCode,
   isUserAlreadyReferred as firebaseIsUserAlreadyReferred,
+  getGenesisUsersCount as firebaseGetGenesisUsersCount,
+  GENESIS_SPOTS,
   type User,
   type Referral
 } from './firebase';
 
-// Export the types
+// Export the types and constants
 export type { User, Referral };
+export { GENESIS_SPOTS };
 
 // Export API functions
 export async function createOrUpdateUser(
@@ -47,4 +50,8 @@ export async function getUserByReferralCode(referralCode: string): Promise<User 
 
 export async function isUserAlreadyReferred(userId: string): Promise<boolean> {
   return firebaseIsUserAlreadyReferred(userId);
+}
+
+export async function getGenesisUsersCount(): Promise<number> {
+  return firebaseGetGenesisUsersCount();
 } 

@@ -11,9 +11,13 @@ import {
   serverTimestamp,
   updateDoc,
   increment,
-  DocumentData
+  DocumentData,
+  getCountFromServer
 } from 'firebase/firestore';
 import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
+
+// Genesis users constant - first 500 users
+export const GENESIS_SPOTS = 500;
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -65,6 +69,7 @@ export type User = {
   email?: string;
   twitter_username?: string;
   twitter_profile_pic?: string;
+  is_genesis?: boolean; // Genesis user flag
 };
 
 // Helper functions for working with users and referrals
@@ -106,12 +111,23 @@ export async function createOrUpdateUser(
       }
     }
     
+    // Check for Genesis user status (only if user doesn't already have genesis status)
+    let isGenesis = userSnap.exists() ? userSnap.data().is_genesis : false;
+    
+    // If not already a Genesis user, check if we still have spots available
+    if (!isGenesis) {
+      const genesisCount = await getGenesisUsersCount();
+      isGenesis = genesisCount < GENESIS_SPOTS;
+      console.log(`DEBUG - Genesis users count: ${genesisCount}, Spots left: ${GENESIS_SPOTS - genesisCount}, Is Genesis: ${isGenesis}`);
+    }
+    
     // Create user data object
     const userData: Record<string, unknown> = {
       user_id: privyUserId,
       referral_code: finalReferralCode,
       invite_count: userSnap.exists() ? userSnap.data().invite_count : 0,
-      created_at: userSnap.exists() ? userSnap.data().created_at : serverTimestamp()
+      created_at: userSnap.exists() ? userSnap.data().created_at : serverTimestamp(),
+      is_genesis: isGenesis
     };
     
     // Only add defined fields
@@ -120,7 +136,7 @@ export async function createOrUpdateUser(
     if (twitterProfilePic) userData.twitter_profile_pic = twitterProfilePic;
     
     await setDoc(userRef, userData, { merge: true });
-    console.log(`DEBUG - User ${privyUserId} created/updated with final referral code ${finalReferralCode}`);
+    console.log(`DEBUG - User ${privyUserId} created/updated with final referral code ${finalReferralCode} and Genesis status: ${isGenesis}`);
     
     // Get the updated user data
     const updatedUserSnap = await getDoc(userRef);
@@ -363,5 +379,18 @@ export async function getUserByReferralCode(referralCode: string): Promise<User 
   } catch (error) {
     console.error('Error fetching user by referral code:', error);
     return null;
+  }
+}
+
+// New function to get count of Genesis users
+export async function getGenesisUsersCount(): Promise<number> {
+  try {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('is_genesis', '==', true));
+    const snapshot = await getCountFromServer(q);
+    return snapshot.data().count;
+  } catch (error) {
+    console.error('Error getting Genesis users count:', error);
+    return 0;
   }
 } 

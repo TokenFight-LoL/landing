@@ -10,6 +10,8 @@ import {
   getReferrerByUserId,
   getUserByReferralCode,
   isUserAlreadyReferred,
+  getGenesisUsersCount,
+  GENESIS_SPOTS,
   type Referral, 
   type User as DbUser 
 } from "@/lib/api"
@@ -41,6 +43,8 @@ export default function Home() {
   const [referrer, setReferrer] = useState<DbUser | null>(null)
   const [pendingReferrer, setPendingReferrer] = useState<ReferrerData | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [genesisCount, setGenesisCount] = useState(0)
+  const [isGenesis, setIsGenesis] = useState(false)
 
   // Set mounted for hydration
   useEffect(() => {
@@ -151,6 +155,9 @@ export default function Home() {
             // Always use the code from the database to ensure consistency
             setReferralCode(userRecord.referral_code);
 
+            // Set Genesis status from user record
+            setIsGenesis(!!userRecord.is_genesis);
+
             // If user was referred, track the referral (only happens once)
             if (ref && ref !== userRecord.referral_code) {
               // First check if this user has already been referred
@@ -182,6 +189,11 @@ export default function Home() {
               setReferrer(referrerData)
             }
           }
+          
+          // Fetch current Genesis users count
+          const count = await getGenesisUsersCount();
+          setGenesisCount(count);
+          
         } catch (error) {
           console.error("Error handling user:", error)
         }
@@ -225,6 +237,9 @@ export default function Home() {
           invitedUsers={invitedUsers}
           referrer={referrer}
           logout={logout}
+          isGenesis={isGenesis}
+          genesisCount={genesisCount}
+          genesisSpotsTotal={GENESIS_SPOTS}
         />
       ) : null}
     </main>

@@ -5,7 +5,8 @@ import { Users } from "lucide-react"
 import Image from "next/image"
 import { Klee_One } from "next/font/google"
 import "./token-fight.css"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { getGenesisUsersCount, GENESIS_SPOTS } from "@/lib/api"
 
 const klee = Klee_One({
   weight: ["400", "600"],
@@ -26,6 +27,9 @@ interface LandingHeroProps {
 }
 
 export function LandingHero({ referrerData }: LandingHeroProps) {
+  const [genesisCount, setGenesisCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  
   // Effect to set the CSS custom property for viewport height
   useEffect(() => {
     // First we get the viewport height and we multiply it by 1% to get a value for a vh unit
@@ -59,6 +63,25 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
       clearTimeout(resizeTimeout);
     };
   }, []);
+  
+  // Fetch Genesis users count
+  useEffect(() => {
+    const fetchGenesisCount = async () => {
+      try {
+        const count = await getGenesisUsersCount();
+        setGenesisCount(count);
+      } catch (error) {
+        console.error("Error fetching Genesis count:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchGenesisCount();
+  }, []);
+  
+  // Calculate Genesis spots remaining
+  const genesisSpotsLeft = GENESIS_SPOTS - genesisCount;
 
   return (
     <div className="z-10 flex flex-col items-center justify-between real-vh px-3 sm:px-4 md:px-5 lg:px-6 pb-10 pt-10">
@@ -97,6 +120,13 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
         <div>
           <AuthButton size="lg" className="animate-glow-pulse hover:animate-none" />
         </div>
+        
+        {/* Genesis spots counter - now below the join button */}
+        <div className="text-center mt-4 sm:mt-5 md:mt-6">
+          <p className={`${klee.className} text-xs sm:text-sm md:text-base text-white/50`}>
+            ⚡ <span className="text-[#8af337]/70">{loading ? '...' : genesisSpotsLeft}</span>/{GENESIS_SPOTS} Genesis Spots left
+          </p>
+        </div>
       </div>
       
       {/* Empty flex space to push content to center */}
@@ -111,7 +141,7 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
           height={30}
           className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-[30px] lg:h-[30px]"
         />
-        <p className={`${klee.className} font-normal medium-bold`}>Join early, <span className="light-bold">invite friends</span>, and earn trading fees we launch!</p>
+        <p className={`${klee.className} font-normal medium-bold`}>Join early, <span className="light-bold">invite friends</span>, and earn trading fees when we're live!</p>
       </div>
     </div>
   )

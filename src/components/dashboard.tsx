@@ -54,9 +54,22 @@ interface DashboardProps {
   invitedUsers: InvitedUser[];
   referrer: DbUser | null;
   logout: () => void;
+  isGenesis: boolean;
+  genesisCount: number;
+  genesisSpotsTotal: number;
 }
 
-export default function Dashboard({ user, referralCode, inviteCount, invitedUsers, referrer, logout }: DashboardProps) {
+export default function Dashboard({ 
+  user, 
+  referralCode, 
+  inviteCount, 
+  invitedUsers, 
+  referrer, 
+  logout,
+  isGenesis,
+  genesisCount,
+  genesisSpotsTotal
+}: DashboardProps) {
   const [origin, setOrigin] = useState("")
   const [showCopiedMessage, setShowCopiedMessage] = useState(false)
 
@@ -93,6 +106,9 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
   // Common card background styling
   const cardBgClass = "rounded-[30px] bg-gradient-to-t from-[rgba(162,162,162,0.16)] to-[rgba(206,206,206,0.05)] shadow-[0px_2.5px_157px_rgba(0,0,0,0.3)] backdrop-blur-[65px] border-[#2e3446]/10";
 
+  // Calculate Genesis spots remaining
+  const genesisSpotsLeft = genesisSpotsTotal - genesisCount;
+
   return (
     <section className="z-10 w-full max-w-lg mx-auto flex flex-col h-screen">
       {/* Fixed header section */}
@@ -102,6 +118,13 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
           <h1 className={`${klee.className} text-[24px] sm:text-[28px] md:text-[32px] text-white leading-normal token-stroke`}>Invite & Earn</h1>
           <p className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal`}>
             Earn 2% of your friends&apos; trading fees on <span className="text-[#8af337]"><img src="/logo.png" alt="Token Fight Logo" width={20} height={20} className="inline-block mr-1 w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5" /> Token Fight!</span> when we&apos;re live!
+          </p>
+        </div>
+
+        {/* Genesis users count display */}
+        <div className="relative w-full overflow-hidden text-center text-sm px-3 py-2 rounded-lg bg-[#1e2333]/70 border border-[#2e3446] mb-1">
+          <p className={klee.className}>
+            ⚡ <span className="text-[#8af337]">{genesisSpotsLeft}</span>/{genesisSpotsTotal} Genesis spots left
           </p>
         </div>
 
@@ -142,6 +165,11 @@ export default function Dashboard({ user, referralCode, inviteCount, invitedUser
                       alt="right from bracket" 
                       className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4"
                     />
+                    {isGenesis && (
+                      <span className="ml-1 text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-gradient-x">
+                        ⚡ Genesis user
+                      </span>
+                    )}
                   </div>
                   <p className={`${klee.className} text-xs sm:text-sm text-gray-400`}>{userId}</p>
                 </div>
