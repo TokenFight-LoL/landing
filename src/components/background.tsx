@@ -331,14 +331,17 @@ export default function Background() {
   }, []);
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="fixed inset-0 w-full h-full overflow-hidden z-0">
       <div 
         ref={backgroundRef}
-        className={`relative w-[1920px] h-[1080px] ${isPanning ? 'panning-background' : ''}`}
+        className={`absolute w-[1920px] h-[1080px] ${isPanning ? 'panning-background' : ''} min-w-full min-h-full`}
         style={{
           // Apply dynamic CSS variables for animation limits
           '--max-x': `${panLimits.x}%`,
           '--max-y': `${panLimits.y}%`,
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)'
         } as React.CSSProperties}
       >
         {/* Base gradient background */}
@@ -389,19 +392,19 @@ export default function Background() {
 
           @keyframes pan {
             0% {
-              transform: translate(0%, 0%);
+              transform: translate(-50%, -50%);
             }
             25% {
-              transform: translate(calc(-1 * var(--max-x)), calc(-0.5 * var(--max-y)));
+              transform: translate(calc(-50% - var(--max-x)), calc(-50% - 0.5 * var(--max-y)));
             }
             50% {
-              transform: translate(calc(-0.7 * var(--max-x)), calc(-1 * var(--max-y)));
+              transform: translate(calc(-50% - 0.7 * var(--max-x)), calc(-50% - var(--max-y)));
             }
             75% {
-              transform: translate(calc(-0.3 * var(--max-x)), calc(-0.8 * var(--max-y)));
+              transform: translate(calc(-50% - 0.3 * var(--max-x)), calc(-50% - 0.8 * var(--max-y)));
             }
             100% {
-              transform: translate(0%, 0%);
+              transform: translate(-50%, -50%);
             }
           }
 
@@ -425,7 +428,6 @@ export default function Background() {
 
           .panning-background {
             animation: pan 90s infinite ease-in-out;
-            transform-origin: center center;
           }
         `}</style>
 

@@ -37,12 +37,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col relative`}
       >
-        {/* Background Component with fixed dimensions */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center">
-          <div className="relative w-full h-full">
-            <Background />
-          </div>
-        </div>
+        {/* Background component will position itself with fixed positioning */}
+        <Background />
 
         <Providers>
           <div className="flex-1 flex items-center justify-center relative z-10">{children}</div>
