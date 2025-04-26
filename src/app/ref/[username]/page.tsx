@@ -12,6 +12,7 @@ type ReferrerData = {
   twitter_username?: string;
   email?: string;
   referral_code: string;
+  twitter_profile_pic?: string;
 };
 
 // Generate metadata for sharing
@@ -27,14 +28,20 @@ export async function generateMetadata(
   const previousImages = previous.openGraph?.images || [];
 
   // Fetch user data to verify username exists
-  let referrerName = '';
+  let referrerName = username; // Default to the URL param so we always have something
+  let profilePic = ''; // Default empty, will use jazzicon if not found
+  
   try {
     const user = await getUserByReferralCode(username);
     if (user?.twitter_username) {
       referrerName = user.twitter_username;
     }
+    if (user?.twitter_profile_pic) {
+      profilePic = user.twitter_profile_pic;
+    }
   } catch (error) {
     console.error('Error fetching user data for OG image:', error);
+    // We'll use the username from params as fallback
   }
 
   // Create absolute URL for OG image
@@ -44,19 +51,19 @@ export async function generateMetadata(
   // Make sure we have a fully qualified URL for the OG image
   const ogUrl = new URL('/api/og', baseUrl);
   
-  if (referrerName) {
-    ogUrl.searchParams.set('username', referrerName);
+  // Always pass the username parameter, even if it's just the URL param
+  ogUrl.searchParams.set('username', referrerName);
+  
+  // If we have a profile pic, pass it as well
+  if (profilePic) {
+    ogUrl.searchParams.set('profilePic', profilePic);
   }
 
   return {
-    title: referrerName
-      ? `Join ${referrerName} on TokenFight`
-      : 'You\'ve been invited to TokenFight',
+    title: `Join ${referrerName} on TokenFight`,
     description: 'Trade tokens that kill each other',
     openGraph: {
-      title: referrerName
-        ? `${referrerName} is inviting you to TokenFight`
-        : 'You\'ve been invited to TokenFight',
+      title: `${referrerName} is inviting you to TokenFight`,
       description: 'Trade tokens that kill each other',
       type: 'website',
       url: `${baseUrl}/ref/${username}`,
@@ -72,9 +79,7 @@ export async function generateMetadata(
     },
     twitter: {
       card: 'summary_large_image',
-      title: referrerName
-        ? `${referrerName} is inviting you to TokenFight`
-        : 'You\'ve been invited to TokenFight',
+      title: `${referrerName} is inviting you to TokenFight`,
       description: 'Trade tokens that kill each other',
       images: [{
         url: ogUrl.toString(),
