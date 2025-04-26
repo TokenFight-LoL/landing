@@ -1,5 +1,4 @@
 import { ImageResponse } from '@vercel/og';
-import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
@@ -20,14 +19,18 @@ function intToRGB(i: number): string {
   return '#' + '00000'.substring(0, 6 - c.length) + c;
 }
 
+// Define params as Promise for Next.js 15 - for metadata generation
+type Params = Promise<{ username: string }>;
+
+
 // Updated for Next.js 15 route handler types
 export async function GET(
-  request: NextRequest,
-  context: { params: { username: string } }
+  request: Request,
+  { params }: { params: Params }
 ) {
   try {
     // Get username from route param (path) instead of query string
-    const username = context.params.username || 'Someone';
+    const { username } = await params;
     
     // Get profilePic from searchParams if needed
     const { searchParams } = new URL(request.url);
