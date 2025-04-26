@@ -20,13 +20,14 @@ function intToRGB(i: number): string {
   return '#' + '00000'.substring(0, 6 - c.length) + c;
 }
 
+// Updated for Next.js 15 route handler types
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  context: { params: { username: string } }
 ) {
   try {
     // Get username from route param (path) instead of query string
-    const username = params.username || 'Someone';
+    const username = context.params.username || 'Someone';
     
     // Get profilePic from searchParams if needed
     const { searchParams } = new URL(request.url);
