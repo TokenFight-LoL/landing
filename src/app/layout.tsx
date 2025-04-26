@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -13,6 +13,12 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+// Separate viewport export as recommended by Next.js 15
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const origin = process.env.NEXT_PUBLIC_WEBSITE_URL ?? 'https://tokenfight.lol';
@@ -42,7 +48,6 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: '/logo.png',
       apple: '/logo.png',
     },
-    viewport: "width=device-width, initial-scale=1",
   };
 }
 
