@@ -29,7 +29,7 @@ export async function generateMetadata(
 
   // Fetch user data to verify username exists
   let referrerName = username; // Default to the URL param so we always have something
-  let profilePic = ''; // Default empty, will use jazzicon if not found
+  let profilePic = ''; // Default empty
   
   try {
     const user = await getUserByReferralCode(username);
@@ -38,6 +38,7 @@ export async function generateMetadata(
     }
     if (user?.twitter_profile_pic) {
       profilePic = user.twitter_profile_pic;
+      console.log('Found profile pic:', profilePic); // Debug log
     }
   } catch (error) {
     console.error('Error fetching user data for OG image:', error);
@@ -54,9 +55,17 @@ export async function generateMetadata(
   // Always pass the username parameter, even if it's just the URL param
   ogUrl.searchParams.set('username', referrerName);
   
-  // If we have a profile pic, pass it as well
-  if (profilePic) {
-    ogUrl.searchParams.set('profilePic', profilePic);
+  // If we have a profile pic, pass it as well - ensure it's a valid URL
+  if (profilePic && profilePic.startsWith('http')) {
+    try {
+      // Validate the URL is properly formed
+      new URL(profilePic);
+      ogUrl.searchParams.set('profilePic', profilePic);
+      console.log('Setting profilePic param:', profilePic); // Debug log
+      console.log('Final OG URL:', ogUrl.toString()); // Debug the full URL
+    } catch (error) {
+      console.error('Invalid profile pic URL:', profilePic, error);
+    }
   }
 
   return {

@@ -20,70 +20,23 @@ function intToRGB(i: number): string {
   return '#' + '00000'.substring(0, 6 - c.length) + c;
 }
 
-// Generate a simple Jazzicon-like SVG based on username
-function generateJazzicon(username: string, size: number = 100): string {
-  const hash = hashCode(username);
-  const backgroundColor = intToRGB(hash);
-  const foregroundColor = intToRGB(hash >> 3);
-  const pattern = hash % 4; // Different pattern styles
-  
-  let patternSvg = '';
-  
-  // Generate different patterns based on the hash
-  switch (pattern) {
-    case 0: // Circles
-      for (let i = 0; i < 5; i++) {
-        const cx = 10 + (hash % (size - 20)) % 80;
-        const cy = 10 + ((hash >> (i * 3)) % (size - 20)) % 80;
-        const r = 5 + (hash % 15);
-        patternSvg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${intToRGB(hash >> (i * 2))}" />`;
-      }
-      break;
-    case 1: // Rectangles
-      for (let i = 0; i < 3; i++) {
-        const x = ((hash >> i) % 60) + 10;
-        const y = ((hash >> (i * 2)) % 60) + 10;
-        const width = 10 + (hash % 30);
-        const height = 10 + ((hash >> i) % 30);
-        patternSvg += `<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="${intToRGB(hash >> (i * 3))}" />`;
-      }
-      break;
-    case 2: // Triangles
-      for (let i = 0; i < 4; i++) {
-        const x1 = ((hash >> i) % 80) + 10;
-        const y1 = ((hash >> (i * 2)) % 80) + 10;
-        const x2 = ((hash >> (i * 3)) % 80) + 10;
-        const y2 = ((hash >> (i * 4)) % 80) + 10;
-        const x3 = ((hash >> (i * 5)) % 80) + 10;
-        const y3 = ((hash >> (i * 6)) % 80) + 10;
-        patternSvg += `<polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" fill="${intToRGB(hash >> (i * 2))}" />`;
-      }
-      break;
-    default: // Mixed shapes
-      patternSvg += `<rect x="25" y="25" width="50" height="50" fill="${foregroundColor}" />`;
-      patternSvg += `<circle cx="50" cy="50" r="25" fill="${intToRGB(hash >> 5)}" />`;
-      patternSvg += `<polygon points="50,25 75,50 50,75 25,50" fill="${intToRGB(hash >> 7)}" />`;
-  }
-  
-  return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
-    <rect width="100" height="100" fill="${backgroundColor}" />
-    ${patternSvg}
-  </svg>`.replace(/[#]/g, '%23');
-}
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    // Ensure we get the username from query params, with fallback
     const username = searchParams.get('username') || 'Someone';
     const profilePic = searchParams.get('profilePic');
+    
+    console.log('OG Image Request:', { username, profilePic }); // Debug log
     
     // Get origin directly from the request URL
     const baseUrl = new URL(request.url).origin;
     // Use the origin from request for the logo URL
     const logoUrl = new URL('/logo.png', baseUrl).toString();
     
-    // Generate a Jazzicon if we don't have a profile pic
-    const avatarUrl = profilePic || generateJazzicon(username, 200);
+    // Generate colors based on username for the avatar background
+    const hash = hashCode(username);
+    const backgroundColor = intToRGB(hash);
 
     const res = new ImageResponse(
       (
@@ -176,18 +129,39 @@ export async function GET(request: NextRequest) {
                 marginBottom: '20px',
               }}
             >
-              {/* Profile picture or Jazzicon */}
-              <img
-                src={avatarUrl}
-                width="50"
-                height="50"
-                style={{
-                  borderRadius: '50%',
-                  marginRight: '15px',
-                  border: '2px solid #8A63D2',
-                }}
-                alt={`${username}'s avatar`}
-              />
+              {/* Profile picture or generated avatar */}
+              {profilePic ? (
+                <img
+                  src={profilePic}
+                  width="50"
+                  height="50"
+                  style={{
+                    borderRadius: '50%',
+                    marginRight: '15px',
+                    border: '2px solid #8A63D2',
+                  }}
+                  alt={`${username}'s avatar`}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    marginRight: '15px',
+                    backgroundColor,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '18px',
+                    border: '2px solid #8A63D2',
+                  }}
+                >
+                  {username.substring(0, 2).toUpperCase()}
+                </div>
+              )}
               
               <p style={{ fontSize: 32, color: 'white', textAlign: 'center' }}>
                 @{username} is inviting you to TokenFight.lol
