@@ -14,15 +14,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Token Fight - Trade tokens that kill each other",
-  description: "Enter the arena. Trade tokens that kill each other.",
-  icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
-  },
-  viewport: "width=device-width, initial-scale=1",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const origin = process.env.NEXT_PUBLIC_WEBSITE_URL ?? 'https://tokenfight.lol';
+
+  return {
+    title: "TokenFight - Trade tokens that kill each other",
+    description: "Enter the arena. Trade tokens that kill each other.",
+    openGraph: {
+      type: 'website',
+      url: origin,
+      title: 'TokenFight - Trade tokens that kill each other',
+      description: 'Enter the arena. Trade tokens that kill each other.',
+      images: [{
+        url: `${origin}/api/og`,
+        width: 1200,
+        height: 630,
+        alt: 'TokenFight Invitation',
+      }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'TokenFight - Trade tokens that kill each other',
+      description: 'Enter the arena. Trade tokens that kill each other.',
+      images: [`${origin}/api/og`],
+    },
+    icons: {
+      icon: '/logo.png',
+      apple: '/logo.png',
+    },
+    viewport: "width=device-width, initial-scale=1",
+  };
+}
 
 export default function RootLayout({
   children,

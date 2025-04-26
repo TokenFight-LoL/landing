@@ -8,12 +8,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const username = searchParams.get('username');
     
-    // For @vercel/og, we can just use the full URL
-    const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 
-                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    // Get origin directly from the request URL
+    const baseUrl = new URL(request.url).origin;
+    // Use the origin from request for the logo URL
     const logoUrl = new URL('/logo.png', baseUrl).toString();
 
-    return new ImageResponse(
+    const res = new ImageResponse(
       (
         <div
           style={{
@@ -120,6 +120,15 @@ export async function GET(request: NextRequest) {
         height: 630,
       }
     );
+    
+    // Add cache headers for Twitter and other social media platforms
+    res.headers.set(
+      'Cache-Control',
+      'public, immutable, no-transform, s-maxage=31536000, max-age=31536000'
+    );
+    
+    return res;
+    
   } catch (e: unknown) {
     console.log(`${e instanceof Error ? e.message : 'An error occurred'}`);
     return new Response(`Failed to generate the image`, {

@@ -38,8 +38,8 @@ export async function generateMetadata(
   }
 
   // Create absolute URL for OG image
-  // For Netlify deployments, we use NEXT_PUBLIC_WEBSITE_URL
-  const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:3000';
+  // Always use the canonical URL first, with fallbacks
+  const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL ?? 'https://tokenfight.lol';
     
   // Make sure we have a fully qualified URL for the OG image
   const ogUrl = new URL('/api/og', baseUrl);
