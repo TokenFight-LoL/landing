@@ -2,6 +2,7 @@
 import { Metadata, ResolvingMetadata } from 'next';
 import { getUserByReferralCode } from '@/lib/api';
 import ReferralClient from './client';
+import crypto from 'crypto';
 
 // Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
@@ -14,6 +15,11 @@ type ReferrerData = {
   referral_code: string;
   twitter_profile_pic?: string;
 };
+
+// Generate a quick hash for cache-busting
+function generateHash(input: string): string {
+  return crypto.createHash('md5').update(input).digest('hex').substring(0, 8);
+}
 
 // Generate metadata for sharing
 export async function generateMetadata(
@@ -62,11 +68,16 @@ export async function generateMetadata(
       new URL(profilePic);
       ogUrl.searchParams.set('profilePic', profilePic);
       console.log('Setting profilePic param:', profilePic); // Debug log
-      console.log('Final OG URL:', ogUrl.toString()); // Debug the full URL
     } catch (error) {
       console.error('Invalid profile pic URL:', profilePic, error);
     }
   }
+  
+  // Add a cache-busting hash based on username to ensure unique URLs for Twitter cache
+  const hashValue = generateHash(username + referrerName);
+  ogUrl.searchParams.set('v', hashValue);
+  
+  console.log('Final OG URL with cache busting:', ogUrl.toString()); // Debug the full URL
 
   return {
     title: `Join ${referrerName} on TokenFight`,

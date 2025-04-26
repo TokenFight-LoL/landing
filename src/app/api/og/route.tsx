@@ -26,8 +26,14 @@ export async function GET(request: NextRequest) {
     // Ensure we get the username from query params, with fallback
     const username = searchParams.get('username') || 'Someone';
     const profilePic = searchParams.get('profilePic');
+    const version = searchParams.get('v'); // Cache-busting version param
     
-    console.log('OG Image Request:', { username, profilePic }); // Debug log
+    console.log('OG Image Request:', { 
+      username, 
+      profilePic,
+      version, // Log the version for debugging
+      url: request.url 
+    });
     
     // Get origin directly from the request URL
     const baseUrl = new URL(request.url).origin;
