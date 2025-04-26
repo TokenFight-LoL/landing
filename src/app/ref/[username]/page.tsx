@@ -2,7 +2,6 @@
 import { Metadata, ResolvingMetadata } from 'next';
 import { getUserByReferralCode } from '@/lib/api';
 import ReferralClient from './client';
-import crypto from 'crypto';
 
 // Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
@@ -15,11 +14,6 @@ type ReferrerData = {
   referral_code: string;
   twitter_profile_pic?: string;
 };
-
-// Generate a quick hash for cache-busting
-function generateHash(input: string): string {
-  return crypto.createHash('md5').update(input).digest('hex').substring(0, 8);
-}
 
 // Generate metadata for sharing
 export async function generateMetadata(
@@ -55,13 +49,11 @@ export async function generateMetadata(
   // Always use the canonical URL first, with fallbacks
   const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL ?? 'https://tokenfight.lol';
     
-  // Make sure we have a fully qualified URL for the OG image
-  const ogUrl = new URL('/api/og', baseUrl);
+  // Make sure we have a fully qualified URL for the OG image with the USERNAME AS PART OF THE PATH
+  // This is much more reliable for Twitter cache than query parameters
+  const ogUrl = new URL(`/api/og/${encodeURIComponent(referrerName)}`, baseUrl);
   
-  // Always pass the username parameter, even if it's just the URL param
-  ogUrl.searchParams.set('username', referrerName);
-  
-  // If we have a profile pic, pass it as well - ensure it's a valid URL
+  // If we have a profile pic, pass it as a query parameter
   if (profilePic && profilePic.startsWith('http')) {
     try {
       // Validate the URL is properly formed
@@ -73,11 +65,7 @@ export async function generateMetadata(
     }
   }
   
-  // Add a cache-busting hash based on username to ensure unique URLs for Twitter cache
-  const hashValue = generateHash(username + referrerName);
-  ogUrl.searchParams.set('v', hashValue);
-  
-  console.log('Final OG URL with cache busting:', ogUrl.toString()); // Debug the full URL
+  console.log('Final OG URL with path parameter:', ogUrl.toString()); // Debug the full URL
 
   return {
     title: `Join ${referrerName} on TokenFight`,
