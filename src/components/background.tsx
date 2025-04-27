@@ -302,24 +302,29 @@ export default function Background() {
     const calculatePanLimits = () => {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const backgroundWidth = 3000; // Increased from 2400 for more coverage
-      const backgroundHeight = 1800; // Increased from 1350 for more coverage
+      const backgroundWidth = 3000;
+      const backgroundHeight = 1800;
       
       // Calculate how much of the background extends beyond the viewport
-      const overflowX = Math.max(0, backgroundWidth - viewportWidth);
-      const overflowY = Math.max(0, backgroundHeight - viewportHeight);
+      // This is the total available "excess" space we can use for panning
+      const excessWidth = Math.max(0, backgroundWidth - viewportWidth);
+      const excessHeight = Math.max(0, backgroundHeight - viewportHeight);
       
-      // Calculate maximum safe percentage to translate
-      // This ensures we never pan beyond the edge of the background
-      // We subtract a 5% safety margin to absolutely prevent any black edges
-      const maxTranslateX = Math.max(0, Math.min(15, (overflowX / backgroundWidth) * 100 - 5));
-      const maxTranslateY = Math.max(0, Math.min(15, (overflowY / backgroundHeight) * 100 - 5));
+      // The maximum distance we can pan in each direction is half of the excess dimension
+      // This ensures we never reveal black edges on either side
+      // We convert to percentage of background size for CSS transforms
+      const maxPanX = excessWidth > 0 ? (excessWidth / 2) / backgroundWidth * 100 : 0;
+      const maxPanY = excessHeight > 0 ? (excessHeight / 2) / backgroundHeight * 100 : 0;
       
-      setPanLimits({ x: maxTranslateX, y: maxTranslateY });
+      setPanLimits({ x: maxPanX, y: maxPanY });
       
-      // Only enable panning if we have enough space to pan without showing black edges
-      // Require a minimum amount of space to enable panning
-      setIsPanning(maxTranslateX > 3 && maxTranslateY > 3);
+      // Only enable panning if we have meaningful space to pan
+      // Requiring at least 2% of movement to enable panning
+      setIsPanning(maxPanX > 2 && maxPanY > 2);
+      
+      // Log for debugging
+      console.log(`Viewport: ${viewportWidth}x${viewportHeight}, Background: ${backgroundWidth}x${backgroundHeight}`);
+      console.log(`Excess: ${excessWidth}x${excessHeight}, Max Pan: ${maxPanX}%x${maxPanY}%`);
     };
 
     // Calculate on initial load
@@ -398,13 +403,13 @@ export default function Background() {
               transform: translate(-50%, -50%);
             }
             25% {
-              transform: translate(calc(-50% - var(--max-x) * 0.8), calc(-50% - var(--max-y) * 0.8));
+              transform: translate(calc(-50% - var(--max-x)), calc(-50% - var(--max-y)));
             }
             50% {
-              transform: translate(calc(-50% + var(--max-x) * 0.8), calc(-50% - var(--max-y) * 0.8));
+              transform: translate(calc(-50% + var(--max-x)), calc(-50% - var(--max-y)));
             }
             75% {
-              transform: translate(calc(-50% + var(--max-x) * 0.8), calc(-50% + var(--max-y) * 0.8));
+              transform: translate(calc(-50% + var(--max-x)), calc(-50% + var(--max-y)));
             }
             100% {
               transform: translate(-50%, -50%);
