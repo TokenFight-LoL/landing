@@ -1,4 +1,5 @@
 import { ImageResponse } from '@vercel/og';
+import { KLEE_ONE_REGULAR, KLEE_ONE_SEMIBOLD } from '@/lib/embedded-fonts';
 
 // Use Edge runtime for fastest performance with @vercel/og
 export const runtime = 'edge';
@@ -10,18 +11,10 @@ export const runtime = 'edge';
  * If the image generation takes longer, Twitter will fall back to text-only cards.
  * 
  * These optimizations ensure that even cold starts complete within Twitter's timeout:
- * 1. Module-level font caching - fonts are loaded only once per Edge Function instance
- * 2. Using force-cache fetch option for predictable caching behavior
- * 3. Keeping strong cache headers for CDN caching (public, immutable, s-maxage=31536000)
+ * 1. Zero-fetch approach: Fonts are embedded directly in the code as ArrayBuffers
+ * 2. No external dependencies: All assets are either embedded or loaded from the CDN
+ * 3. Strong cache headers: public, immutable, s-maxage=31536000
  */
-
-// Module-level caching - evaluated only once per Edge Function instance
-// This significantly reduces cold start times by avoiding font fetches on each request
-let fontRegularCache: ArrayBuffer | null = null;
-let fontBoldCache: ArrayBuffer | null = null;
-// We're not actually using data:URIs for now, but keeping the standard URLs
-// let logoCache: string | null = null; 
-// let backgroundCache: string | null = null;
 
 // Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
@@ -48,24 +41,6 @@ export async function GET(
     // Get origin directly from the request URL
     const baseUrl = new URL(request.url).origin;
     
-    // PERFORMANCE: Load and cache fonts if not already in memory
-    // This ensures we only fetch fonts once per edge function instance
-    if (!fontRegularCache) {
-      const fontUrl = new URL('/fonts/KleeOne-Regular.ttf', baseUrl).toString();
-      console.log('Loading regular font from:', fontUrl);
-      const res = await fetch(fontUrl, { cache: 'force-cache' });
-      fontRegularCache = await res.arrayBuffer();
-      console.log('Regular font loaded!');
-    }
-    
-    if (!fontBoldCache) {
-      const fontUrl = new URL('/fonts/KleeOne-SemiBold.ttf', baseUrl).toString();
-      console.log('Loading bold font from:', fontUrl);
-      const res = await fetch(fontUrl, { cache: 'force-cache' });
-      fontBoldCache = await res.arrayBuffer();
-      console.log('Bold font loaded!');
-    }
-    
     // Get URLs for assets - served from Vercel's CDN
     const logoUrl = new URL('/logo.png', baseUrl).toString();
     const backgroundUrl = new URL('/color bg.png', baseUrl).toString();
@@ -73,8 +48,10 @@ export async function GET(
     // Define the brand green color
     const brandGreen = '#8AF337';
 
-    const fontDataRegular = fontRegularCache;
-    const fontDataBold = fontBoldCache;
+    // No need for async loading - fonts are already available as ArrayBuffers
+    // This completely eliminates network requests for fonts
+    const fontDataRegular = KLEE_ONE_REGULAR;
+    const fontDataBold = KLEE_ONE_SEMIBOLD;
 
     const res = new ImageResponse(
       (
