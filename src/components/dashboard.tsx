@@ -193,7 +193,7 @@ export default function Dashboard({
               {isGenesis && (
                 <div className="text-center mb-4">
                   <span className="text-sm md:text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 animate-gradient-x">
-                    ⚡ You have claimed Genesis spot
+                    ⚡ You have claimed a Genesis spot
                   </span>
                 </div>
               )}

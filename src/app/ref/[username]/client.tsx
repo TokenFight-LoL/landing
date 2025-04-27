@@ -3,7 +3,7 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { useEffect, useState } from 'react';
 import { LandingHero } from "@/components/landing-hero";
-import { createOrUpdateUser, getUserByPrivyId, trackReferral } from '@/lib/api';
+import { createOrUpdateUser, getUserByPrivyId, trackReferral, isUserAlreadyReferred, getReferrerByUserId } from '@/lib/api';
 import { Klee_One } from "next/font/google";
 import { useRouter } from 'next/navigation';
 
@@ -57,6 +57,22 @@ export default function ReferralClient({ username, initialReferrerData }: Referr
           // or if they're already authenticated, redirect to home page
           if (userRecord && userRecord.referral_code === refCode) {
             console.log('User is trying to use their own referral code. Redirecting to home page.');
+            router.push('/');
+            return;
+          }
+          
+          // Check if user already has a referral
+          const alreadyReferred = await isUserAlreadyReferred(user.id);
+          if (alreadyReferred) {
+            console.log('User already has a referral. Redirecting to home page.');
+            router.push('/');
+            return;
+          }
+          
+          // Additional check - get the existing referrer to be sure
+          const existingReferrer = await getReferrerByUserId(user.id);
+          if (existingReferrer) {
+            console.log('User already has a referrer. Redirecting to home page.');
             router.push('/');
             return;
           }
