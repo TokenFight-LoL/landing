@@ -2,26 +2,9 @@ import { ImageResponse } from '@vercel/og';
 
 export const runtime = 'edge';
 
-// Simple hash function for consistent colors
-function hashCode(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return hash;
-}
-
-// Generate a color from a hash
-function intToRGB(i: number): string {
-  const c = (i & 0x00FFFFFF)
-    .toString(16)
-    .toUpperCase();
-  return '#' + '00000'.substring(0, 6 - c.length) + c;
-}
-
-// Function to load Google Font
-async function loadGoogleFont(font: string, text: string) {
-  const url = `https://fonts.googleapis.com/css2?family=${font}&text=${encodeURIComponent(text)}`;
+// Function to load Google Font - both regular and bold weights
+async function loadGoogleFont(font: string, text: string, weight: number = 400) {
+  const url = `https://fonts.googleapis.com/css2?family=${font}:wght@${weight}&text=${encodeURIComponent(text)}`;
   const css = await (await fetch(url)).text();
   const resource = css.match(/src: url\((.+)\) format\('(opentype|truetype|woff2?)'\)/);
 
@@ -32,7 +15,7 @@ async function loadGoogleFont(font: string, text: string) {
     }
   }
 
-  throw new Error('Failed to load font data');
+  throw new Error(`Failed to load font data for weight ${weight}`);
 }
 
 // Define params as Promise for Next.js 15 - for metadata generation
@@ -65,15 +48,15 @@ export async function GET(
     // Add background image URL
     const backgroundUrl = new URL('/color bg.png', baseUrl).toString();
     
-    // Generate colors based on username for the avatar background
-    const hash = hashCode(username);
-    const backgroundColor = intToRGB(hash);
+    // Define the brand green color
+    const brandGreen = '#8AF337';
 
     // Prepare text for font loading
-    const displayText = `TRADE TOKENS THAT KILL EACH OTHER @${username} TokenFight.LoL`;
+    const displayText = `TRADE TOKENS THAT KILL EACH OTHER @${username} TokenFight.LoL inviting to`;
     
-    // Load Klee One font
-    const fontData = await loadGoogleFont('Klee+One', displayText);
+    // Load Klee One font - both regular and bold weights
+    const fontDataRegular = await loadGoogleFont('Klee+One', displayText, 400);
+    const fontDataBold = await loadGoogleFont('Klee+One', displayText, 600);
 
     const res = new ImageResponse(
       (
@@ -84,14 +67,15 @@ export async function GET(
             display: 'flex',
             flexDirection: 'column',
             position: 'relative',
-            fontFamily: 'Klee One, sans-serif',
+            fontFamily: 'Klee One',
             padding: '0',
             margin: '0',
             overflow: 'hidden',
             backgroundColor: '#000000', // Explicit black background
+            boxSizing: 'border-box', // Keep standard sizing; border removed for subtler effect
           }}
         >
-          {/* Background image with improved styling for full coverage */}
+          {/* Background container */}
           <div 
             style={{
               position: 'absolute',
@@ -101,12 +85,12 @@ export async function GET(
               bottom: '0',
               width: '100%',
               height: '100%',
-              zIndex: 1,
               display: 'flex',
               margin: '0',
               padding: '0',
             }}
           >
+            {/* Background image */}
             <img
               src={backgroundUrl}
               alt="Background"
@@ -117,9 +101,76 @@ export async function GET(
                 objectPosition: 'center',
                 margin: '0',
                 padding: '0',
+                opacity: 0.9, // Slightly dimmed for better text contrast
+              }}
+            />
+            
+            {/* Dark overlay for better text contrast */}
+            <div 
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.35)', // Slightly darker overlay for better text contrast
               }}
             />
           </div>
+          
+          {/* Top gradient glow */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '25px',
+              background: 'linear-gradient(to bottom, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+          
+          {/* Bottom gradient glow */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '25px',
+              background: 'linear-gradient(to top, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+          
+          {/* Left gradient glow */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: '25px',
+              background: 'linear-gradient(to right, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+          
+          {/* Right gradient glow */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: '25px',
+              background: 'linear-gradient(to left, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+          
+          
           
           {/* Main content container */}
           <div
@@ -130,8 +181,7 @@ export async function GET(
               height: '100%',
               width: '100%',
               position: 'relative',
-              zIndex: 2,
-              padding: '40px',
+              padding: '40px 50px', // Increased horizontal padding
             }}
           >
             {/* Upper section with profile and text */}
@@ -145,18 +195,18 @@ export async function GET(
                 flex: 1,
               }}
             >
-              {/* Left column: Profile picture and username - exactly 50% width */}
+              {/* Left column: Profile picture and username - exactly 40% width */}
               <div
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: '50%',
+                  width: '40%', // Reduced from 50% to give more space to text
                   padding: '20px',
                 }}
               >
-                {/* Even larger profile picture */}
+                {/* Profile picture with enhanced styling */}
                 {profilePic ? (
                   <img
                     src={profilePic}
@@ -164,8 +214,9 @@ export async function GET(
                     height="280"
                     style={{
                       borderRadius: '50%',
-                      marginBottom: '20px',
-                      border: '2px solid #ffffff',
+                      marginBottom: '25px',
+                      border: `5px solid ${brandGreen}`, // Green border on profile picture
+                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`, // Enhanced glow effect
                     }}
                     alt={`${username}'s avatar`}
                   />
@@ -175,83 +226,137 @@ export async function GET(
                       width: '280px',
                       height: '280px',
                       borderRadius: '50%',
-                      marginBottom: '20px',
-                      backgroundColor,
+                      marginBottom: '25px',
+                      backgroundColor: brandGreen, // Use brand green as background
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'white',
                       fontWeight: 'bold',
                       fontSize: '100px',
-                      border: '2px solid #ffffff',
+                      border: `5px solid ${brandGreen}`, // Green border on profile picture
+                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`, // Enhanced glow effect
                     }}
                   >
                     {username.substring(0, 2).toUpperCase()}
                   </div>
                 )}
                 
-                {/* Username */}
+                {/* Username with enhanced styling */}
                 <p style={{ 
-                  fontSize: 36, 
+                  fontSize: 38, 
                   color: 'white', 
                   textAlign: 'center',
                   margin: 0,
-                  fontWeight: 'bold',
-                  fontFamily: 'Klee One, sans-serif',
+                  fontWeight: '600',
+                  fontFamily: 'Klee One',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                  maxWidth: '100%', // Ensure text doesn't overflow
+                  wordBreak: 'break-word', // Break long usernames
                 }}>
                   @{username}
                 </p>
               </div>
               
-              {/* Right column: "TRADE TOKENS THAT KILL" text - exactly 50% width */}
+              {/* Right column: "TRADE TOKENS THAT KILL" text */}
               <div
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'flex-start',
                   justifyContent: 'center',
-                  width: '50%',
+                  width: '60%', // Increased from 50% to give more space to text
                   padding: '20px',
                 }}
               >
-                <h1
+                {/* "inviting to" text above the main title */}
+                <p style={{ 
+                  fontSize: 24, 
+                  color: '#D8D8D8', 
+                  textAlign: 'left',
+                  margin: 0,
+                  marginBottom: '8px', // Increased spacing
+                  fontWeight: '400',
+                  fontFamily: 'Klee One',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                  letterSpacing: '1px',
+                }}>
+                  inviting to
+                </p>
+                
+                {/* Using a div-based approach to separate each word completely */}
+                <div
                   style={{
-                    fontSize: 50,
-                    fontWeight: 'bold',
+                    fontSize: 50, 
+                    fontWeight: '600',
                     color: 'white',
                     textAlign: 'left',
                     margin: 0,
-                    marginBottom: '20px',
-                    lineHeight: '1.1',
-                    fontFamily: 'Klee One, sans-serif',
+                    marginBottom: '30px',
+                    lineHeight: '1.3',
+                    fontFamily: 'Klee One',
+                    letterSpacing: '0.5px',
+                    maxWidth: '100%',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '10px',
                   }}
                 >
-                  TRADE TOKENS THAT KILL EACH OTHER
-                </h1>
+                  <div style={{ 
+                    color: brandGreen, 
+                    fontWeight: 'bold', 
+                    textShadow: '0 0 8px rgba(138, 243, 55, 0.7), 0 0 2px rgba(255, 255, 255, 0.3)' 
+                  }}>
+                    TRADE
+                  </div>
+                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                    TOKENS
+                  </div>
+                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                    THAT
+                  </div>
+                  <div style={{ 
+                    color: brandGreen, 
+                    fontWeight: 'bold', 
+                    textShadow: '0 0 8px rgba(138, 243, 55, 0.7), 0 0 2px rgba(255, 255, 255, 0.3)' 
+                  }}>
+                    KILL
+                  </div>
+                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                    EACH
+                  </div>
+                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                    OTHER
+                  </div>
+                </div>
                 
-                {/* Website info below the text */}
+                {/* Website info below the text with enhanced styling */}
                 <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-start',
+                    marginTop: '10px', // Increased spacing
                   }}
                 >
                   <img
-                    width="32"
-                    height="32"
+                    width="36"
+                    height="36"
                     src={logoUrl}
                     style={{
-                      marginRight: '10px',
+                      marginRight: '12px',
+                      filter: 'drop-shadow(0 0 6px rgba(138, 243, 55, 0.7))', // Enhanced logo glow
                     }}
                     alt="TokenFight Logo"
                   />
                   <p style={{ 
-                    fontSize: 32, 
+                    fontSize: 36, 
                     color: 'white', 
                     textAlign: 'left',
                     margin: 0,
-                    fontFamily: 'Klee One, sans-serif',
+                    fontFamily: 'Klee One',
+                    fontWeight: '600',
+                    textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
                   }}>
                     TokenFight.LoL
                   </p>
@@ -267,9 +372,15 @@ export async function GET(
         fonts: [
           {
             name: 'Klee One',
-            data: fontData,
+            data: fontDataRegular,
             style: 'normal',
             weight: 400,
+          },
+          {
+            name: 'Klee One',
+            data: fontDataBold,
+            style: 'normal',
+            weight: 600,
           },
         ],
       }

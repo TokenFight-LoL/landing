@@ -118,7 +118,7 @@ export default function Dashboard({
         <div className="text-center mb-3">
           <h1 className={`${klee.className} text-[24px] sm:text-[28px] md:text-[32px] text-white leading-normal token-stroke`}>Invite & Earn</h1>
           <p className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal`}>
-            Earn 2% of your friends&apos; trading fees on <span className="text-[#8af337]"><img src="/logo.png" alt="Token Fight Logo" width={20} height={20} className="inline-block mr-1 w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5" /> Token Fight!</span> when we&apos;re live!
+            Earn 10% of your friends&apos; trading fees on <span className="text-[#8af337]"><img src="/logo.png" alt="Token Fight Logo" width={20} height={20} className="inline-block mr-1 w-4 h-4 sm:w-5 sm:h-5 md:w-5 md:h-5" /> Token Fight!</span> when we&apos;re live!
           </p>
         </div>
 
@@ -252,7 +252,7 @@ export default function Dashboard({
           <div className={`w-full ${cardBgClass}`}>
             <div className="px-5 sm:px-6 md:px-[36px] py-5 sm:py-6 md:py-[30px]">
               <h3 className={`${klee.className} text-[18px] sm:text-[20px] md:text-[24px] text-white leading-normal mb-2 medium-bold`}>Your Referrals</h3>
-              <p className={`${klee.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal mb-3 md:mb-4`}>You earn 2% of the trading fees from every person you invite (when the game launches).</p>
+              <p className={`${klee.className} text-[14px] md:text-[16px] text-[#A2A2A2] font-normal leading-normal mb-3 md:mb-4`}>You earn 10% of the trading fees from every person you invite (when the game launches).</p>
               
               {invitedUsers.length > 0 ? (
                 <div className="space-y-2 sm:space-y-2.5">
