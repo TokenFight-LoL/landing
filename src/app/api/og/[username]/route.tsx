@@ -118,58 +118,6 @@ export async function GET(
             />
           </div>
           
-          {/* Top gradient glow */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '25px',
-              background: 'linear-gradient(to bottom, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
-              pointerEvents: 'none',
-            }}
-          />
-          
-          {/* Bottom gradient glow */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: '25px',
-              background: 'linear-gradient(to top, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
-              pointerEvents: 'none',
-            }}
-          />
-          
-          {/* Left gradient glow */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              bottom: 0,
-              width: '25px',
-              background: 'linear-gradient(to right, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
-              pointerEvents: 'none',
-            }}
-          />
-          
-          {/* Right gradient glow */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: '25px',
-              background: 'linear-gradient(to left, rgba(138, 243, 55, 0.3) 0%, rgba(138, 243, 55, 0.1) 50%, transparent 100%)',
-              pointerEvents: 'none',
-            }}
-          />
-          
           
           
           {/* Main content container */}
