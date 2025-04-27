@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: 'TokenFight - Trade tokens that kill each other',
       description: 'Enter the arena. Trade tokens that kill each other.',
       images: [{
-        url: `${origin}/api/og`,
+        url: `${origin}/static-og.png`,
         width: 1200,
         height: 630,
         alt: 'TokenFight Invitation',
@@ -42,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: 'TokenFight - Trade tokens that kill each other',
       description: 'Enter the arena. Trade tokens that kill each other.',
-      images: [`${origin}/api/og`],
+      images: [`${origin}/static-og.png`],
     },
     icons: {
       icon: '/logo.png',
