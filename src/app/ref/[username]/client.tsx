@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { LandingHero } from "@/components/landing-hero";
 import { createOrUpdateUser, getUserByPrivyId, trackReferral } from '@/lib/api';
 import { Klee_One } from "next/font/google";
+import { useRouter } from 'next/navigation';
 
 const klee = Klee_One({
   weight: ["400", "600"],
@@ -30,9 +31,10 @@ interface ReferralClientProps {
 export default function ReferralClient({ username, initialReferrerData }: ReferralClientProps) {
   const { ready, authenticated, user } = usePrivy();
   const [referrerData] = useState<ReferrerData | null>(initialReferrerData);
-  const [loading, setLoading] = useState(true);
+  const [processingAuth, setProcessingAuth] = useState(false);
   const [mounted, setMounted] = useState(false);
   const refCode = username;
+  const router = useRouter();
   
   // Set mounted for hydration
   useEffect(() => {
@@ -42,74 +44,91 @@ export default function ReferralClient({ username, initialReferrerData }: Referr
   // Handle post-authentication
   useEffect(() => {
     const handleAuthentication = async () => {
-      if (authenticated && user?.id && refCode) {
+      if (!ready) return;
+      
+      setProcessingAuth(true);
+      
+      if (authenticated && user?.id) {
         try {
           // Check if user exists
           let userRecord = await getUserByPrivyId(user.id);
-          let generatedCode = "";
           
-          // Generate a username-based code
-          let username = '';
-          
-          // Prefer Twitter username
-          if (user.twitter?.username) {
-            username = user.twitter.username;
-          } 
-          // Fall back to email prefix
-          else if (user.email?.address) {
-            username = user.email.address.split('@')[0];
-          } 
-          // Last resort, use a portion of their user ID
-          else {
-            username = `user_${user.id.substring(0, 6)}`;
+          // If user is authenticated and trying to use their own referral code,
+          // or if they're already authenticated, redirect to home page
+          if (userRecord && userRecord.referral_code === refCode) {
+            console.log('User is trying to use their own referral code. Redirecting to home page.');
+            router.push('/');
+            return;
           }
           
-          // Clean username to be URL-friendly
-          const usernameBased = username.replace(/[^a-zA-Z0-9_]/g, '');
-          
-          if (userRecord) {
-            // Use existing referral code or update it
-            if (userRecord.referral_code && userRecord.referral_code.startsWith('TF')) {
-              generatedCode = usernameBased;
-            } else if (userRecord.referral_code) {
-              generatedCode = userRecord.referral_code;
+          if (refCode) {
+            let generatedCode = "";
+            
+            // Generate a username-based code
+            let username = '';
+            
+            // Prefer Twitter username
+            if (user.twitter?.username) {
+              username = user.twitter.username;
+            } 
+            // Fall back to email prefix
+            else if (user.email?.address) {
+              username = user.email.address.split('@')[0];
+            } 
+            // Last resort, use a portion of their user ID
+            else {
+              username = `user_${user.id.substring(0, 6)}`;
+            }
+            
+            // Clean username to be URL-friendly
+            const usernameBased = username.replace(/[^a-zA-Z0-9_]/g, '');
+            
+            if (userRecord) {
+              // Use existing referral code or update it
+              if (userRecord.referral_code && userRecord.referral_code.startsWith('TF')) {
+                generatedCode = usernameBased;
+              } else if (userRecord.referral_code) {
+                generatedCode = userRecord.referral_code;
+              } else {
+                generatedCode = usernameBased;
+              }
             } else {
               generatedCode = usernameBased;
             }
-          } else {
-            generatedCode = usernameBased;
-          }
-          
-          // Store user in database
-          userRecord = await createOrUpdateUser(
-            user.id,
-            generatedCode,
-            user.email?.address || undefined,
-            user.twitter?.username || undefined,
-            user.twitter?.profilePictureUrl || undefined
-          );
-
-          if (userRecord && refCode !== userRecord.referral_code) {
-            // Track the referral if this user was referred
-            await trackReferral(refCode, userRecord.id);
             
-            // Redirect to home page after successful referral
-            window.location.href = '/';
+            // Store user in database
+            userRecord = await createOrUpdateUser(
+              user.id,
+              generatedCode,
+              user.email?.address || undefined,
+              user.twitter?.username || undefined,
+              user.twitter?.profilePictureUrl || undefined
+            );
+
+            if (userRecord && refCode !== userRecord.referral_code) {
+              // Track the referral if this user was referred
+              await trackReferral(refCode, userRecord.id);
+              
+              // Redirect to home page after successful referral
+              router.push('/');
+            }
+          } else {
+            // No refCode but user is authenticated, redirect to home
+            router.push('/');
           }
         } catch (error) {
           console.error('Error processing user after auth:', error);
         }
       }
+      
+      setProcessingAuth(false);
     };
     
-    if (ready) {
-      handleAuthentication();
-      setLoading(false);
-    }
-  }, [authenticated, ready, user, refCode]);
+    handleAuthentication();
+  }, [authenticated, ready, user, refCode, router]);
 
-  // Handle loading state or not mounted
-  if (loading || !mounted) {
+  // Render the loading screen if not mounted or still waiting for auth status
+  if (!mounted || !ready || processingAuth) {
     return (
       <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
         <div className="relative flex items-center justify-center z-10">
