@@ -102,11 +102,16 @@ export async function GET() {
                 gap: '16px',
               }}
             >
-              <div style={{ color: 'white', fontSize: '48px' }}>
-                Fully on-chain MMO.
+              <div style={{ color: 'white', fontSize: '48px', display: 'flex', flexDirection: 'row', gap: '8px' }}>
+                <span>Fully</span>
+                <span style={{ color: '#8AF337', fontWeight: 'bold' }}>on-chain</span>
+                <span>MMO.</span>
               </div>
-              <div style={{ color: 'white', fontSize: '48px' }}>
-                Trade tokens that kill each other.
+              <div style={{ color: 'white', fontSize: '48px', display: 'flex', flexDirection: 'row', gap: '8px' }}>
+                <span style={{ color: '#8AF337', fontWeight: 'bold' }}>Trade</span>
+                <span>tokens that</span>
+                <span style={{ color: '#8AF337', fontWeight: 'bold' }}>kill</span>
+                <span>each other.</span>
               </div>
             </div>
           </div>
