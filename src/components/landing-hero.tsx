@@ -141,7 +141,22 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
           height={30}
           className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-[30px] lg:h-[30px]"
         />
-        <p className={`${klee.className} font-normal medium-bold`}>Join early, <span className="light-bold">invite friends</span>, and earn trading fees when we're live!</p>
+        <p className={`${klee.className} font-normal medium-bold`}>Join early, <span className="light-bold">invite friends</span>, and earn trading fees when we&apos;re live!</p>
+      </div>
+      
+      {/* Twitter follow link */}
+      <div className="mt-2 mb-2">
+        <a 
+          href="https://x.com/tokenfightlol" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="flex items-center text-gray-400 hover:text-[#8af337] transition-colors text-xs sm:text-sm"
+        >
+          <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+          Follow @tokenfightlol
+        </a>
       </div>
     </div>
   )
