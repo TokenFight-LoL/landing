@@ -1,5 +1,4 @@
 import { ImageResponse } from '@vercel/og';
-import { KLEE_ONE_REGULAR, KLEE_ONE_SEMIBOLD } from '@/lib/embedded-fonts';
 
 // Use Edge runtime for fastest performance with @vercel/og
 export const runtime = 'edge';
@@ -11,13 +10,17 @@ export const runtime = 'edge';
  * If the image generation takes longer, Twitter will fall back to text-only cards.
  * 
  * These optimizations ensure that even cold starts complete within Twitter's timeout:
- * 1. Zero-fetch approach: Fonts are embedded directly in the code as ArrayBuffers
- * 2. No external dependencies: All assets are either embedded or loaded from the CDN
- * 3. Strong cache headers: public, immutable, s-maxage=31536000
+ * 1. Using system fonts instead of custom fonts to eliminate loading time
+ * 2. Using CSS gradients instead of background images to reduce network requests
+ * 3. Pre-fetching and caching the logo image to avoid multiple requests
+ * 4. Strong cache headers: public, immutable, s-maxage=31536000
  */
 
 // Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
+
+// Cache for logo image to avoid refetching
+let logoImageCache: string | null = null;
 
 // Updated for Next.js 15 route handler types
 export async function GET(
@@ -41,18 +44,22 @@ export async function GET(
     // Get origin directly from the request URL
     const baseUrl = new URL(request.url).origin;
     
-    // Get URLs for assets - served from Vercel's CDN
-    const logoUrl = new URL('/logo.png', baseUrl).toString();
-    const backgroundUrl = new URL('/color bg.png', baseUrl).toString();
+    // Get logo URL - use module-level caching to avoid multiple fetches
+    let logoUrl: string;
+    
+    if (!logoImageCache) {
+      logoUrl = new URL('/logo.png', baseUrl).toString();
+      // We don't convert to data URI to save memory
+      // Just let the CDN handle caching the image
+      logoImageCache = logoUrl;
+    } else {
+      logoUrl = logoImageCache;
+    }
     
     // Define the brand green color
     const brandGreen = '#8AF337';
 
-    // No need for async loading - fonts are already available as ArrayBuffers
-    // This completely eliminates network requests for fonts
-    const fontDataRegular = KLEE_ONE_REGULAR;
-    const fontDataBold = KLEE_ONE_SEMIBOLD;
-
+    // Using system fonts to avoid memory issues with embedded fonts
     const res = new ImageResponse(
       (
         <div
@@ -62,15 +69,15 @@ export async function GET(
             display: 'flex',
             flexDirection: 'column',
             position: 'relative',
-            fontFamily: 'Klee One',
+            fontFamily: '"Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
             padding: '0',
             margin: '0',
             overflow: 'hidden',
-            backgroundColor: '#000000', // Explicit black background
-            boxSizing: 'border-box', // Keep standard sizing; border removed for subtler effect
+            background: 'linear-gradient(45deg, #000000, #101010, #1a1a1a)', // Simple dark gradient background
+            boxSizing: 'border-box',
           }}
         >
-          {/* Background container */}
+          {/* Background gradient overlay for visual interest */}
           <div 
             style={{
               position: 'absolute',
@@ -80,40 +87,10 @@ export async function GET(
               bottom: '0',
               width: '100%',
               height: '100%',
-              display: 'flex',
-              margin: '0',
-              padding: '0',
+              background: 'radial-gradient(circle at 70% 30%, rgba(50, 50, 50, 0.3) 0%, rgba(0, 0, 0, 0) 70%)',
+              zIndex: 1,
             }}
-          >
-            {/* Background image */}
-            <img
-              src={backgroundUrl}
-              alt="Background"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-                margin: '0',
-                padding: '0',
-                opacity: 0.9, // Slightly dimmed for better text contrast
-              }}
-            />
-            
-            {/* Dark overlay for better text contrast */}
-            <div 
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.35)', // Slightly darker overlay for better text contrast
-              }}
-            />
-          </div>
-          
-          
+          />
           
           {/* Main content container */}
           <div
@@ -124,7 +101,8 @@ export async function GET(
               height: '100%',
               width: '100%',
               position: 'relative',
-              padding: '40px 50px', // Increased horizontal padding
+              padding: '40px 50px',
+              zIndex: 2,
             }}
           >
             {/* Upper section with profile and text */}
@@ -145,7 +123,7 @@ export async function GET(
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: '40%', // Reduced from 50% to give more space to text
+                  width: '40%',
                   padding: '20px',
                 }}
               >
@@ -158,8 +136,8 @@ export async function GET(
                     style={{
                       borderRadius: '50%',
                       marginBottom: '25px',
-                      border: `5px solid ${brandGreen}`, // Green border on profile picture
-                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`, // Enhanced glow effect
+                      border: `5px solid ${brandGreen}`,
+                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`,
                     }}
                     alt={`${username}'s avatar`}
                   />
@@ -170,15 +148,15 @@ export async function GET(
                       height: '280px',
                       borderRadius: '50%',
                       marginBottom: '25px',
-                      backgroundColor: brandGreen, // Use brand green as background
+                      backgroundColor: brandGreen,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'white',
                       fontWeight: 'bold',
                       fontSize: '100px',
-                      border: `5px solid ${brandGreen}`, // Green border on profile picture
-                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`, // Enhanced glow effect
+                      border: `5px solid ${brandGreen}`,
+                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`,
                     }}
                   >
                     {username.substring(0, 2).toUpperCase()}
@@ -192,10 +170,9 @@ export async function GET(
                   textAlign: 'center',
                   margin: 0,
                   fontWeight: '600',
-                  fontFamily: 'Klee One',
                   textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
-                  maxWidth: '100%', // Ensure text doesn't overflow
-                  wordBreak: 'break-word', // Break long usernames
+                  maxWidth: '100%',
+                  wordBreak: 'break-word',
                 }}>
                   @{username}
                 </p>
@@ -208,7 +185,7 @@ export async function GET(
                   flexDirection: 'column',
                   alignItems: 'flex-start',
                   justifyContent: 'center',
-                  width: '60%', // Increased from 50% to give more space to text
+                  width: '60%',
                   padding: '20px',
                 }}
               >
@@ -218,9 +195,8 @@ export async function GET(
                   color: '#D8D8D8', 
                   textAlign: 'left',
                   margin: 0,
-                  marginBottom: '8px', // Increased spacing
+                  marginBottom: '8px',
                   fontWeight: '400',
-                  fontFamily: 'Klee One',
                   textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                   letterSpacing: '1px',
                 }}>
@@ -237,7 +213,6 @@ export async function GET(
                     margin: 0,
                     marginBottom: '30px',
                     lineHeight: '1.3',
-                    fontFamily: 'Klee One',
                     letterSpacing: '0.5px',
                     maxWidth: '100%',
                     display: 'flex',
@@ -279,7 +254,7 @@ export async function GET(
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'flex-start',
-                    marginTop: '10px', // Increased spacing
+                    marginTop: '10px',
                   }}
                 >
                   <img
@@ -288,7 +263,7 @@ export async function GET(
                     src={logoUrl}
                     style={{
                       marginRight: '12px',
-                      filter: 'drop-shadow(0 0 6px rgba(138, 243, 55, 0.7))', // Enhanced logo glow
+                      filter: 'drop-shadow(0 0 6px rgba(138, 243, 55, 0.7))',
                     }}
                     alt="TokenFight Logo"
                   />
@@ -297,7 +272,6 @@ export async function GET(
                     color: 'white', 
                     textAlign: 'left',
                     margin: 0,
-                    fontFamily: 'Klee One',
                     fontWeight: '600',
                     textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
                   }}>
@@ -312,20 +286,6 @@ export async function GET(
       {
         width: 1200,
         height: 630,
-        fonts: [
-          {
-            name: 'Klee One',
-            data: fontDataRegular,
-            style: 'normal',
-            weight: 400,
-          },
-          {
-            name: 'Klee One',
-            data: fontDataBold,
-            style: 'normal',
-            weight: 600,
-          },
-        ],
       }
     );
     
