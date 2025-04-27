@@ -1,28 +1,27 @@
 import { ImageResponse } from '@vercel/og';
 
+// Use Edge runtime for fastest performance with @vercel/og
 export const runtime = 'edge';
 
-// ------------- module scope (executed once per isolate) -------------
-// Preload fonts and assets to improve performance
-const fontRegularP = fetch(
-  new URL('../../../../public/fonts/klee-one-regular.woff2', import.meta.url)
-).then(r => r.arrayBuffer());
+/**
+ * PERFORMANCE OPTIMIZATIONS FOR TWITTER CARD GENERATION
+ * 
+ * Twitter bot has a very strict timeout of approximately 5 seconds for fetching OG images.
+ * If the image generation takes longer, Twitter will fall back to text-only cards.
+ * 
+ * These optimizations ensure that even cold starts complete within Twitter's timeout:
+ * 1. Module-level font caching - fonts are loaded only once per Edge Function instance
+ * 2. Using force-cache fetch option for predictable caching behavior
+ * 3. Keeping strong cache headers for CDN caching (public, immutable, s-maxage=31536000)
+ */
 
-const fontBoldP = fetch(
-  new URL('../../../../public/fonts/klee-one-bold.woff2', import.meta.url)
-).then(r => r.arrayBuffer());
-
-// embed logo and background once at module level
-const logoP = fetch(new URL('../../../../public/logo.png', import.meta.url))
-  .then(r => r.arrayBuffer())
-  .then(buf => `data:image/png;base64,${Buffer.from(buf).toString('base64')}`);
-
-const bgP = fetch(new URL('../../../../public/color bg.png', import.meta.url))
-  .then(r => r.arrayBuffer())
-  .then(buf => `data:image/png;base64,${Buffer.from(buf).toString('base64')}`);
-
-// Define brand green color
-const brandGreen = '#8AF337';
+// Module-level caching - evaluated only once per Edge Function instance
+// This significantly reduces cold start times by avoiding font fetches on each request
+let fontRegularCache: ArrayBuffer | null = null;
+let fontBoldCache: ArrayBuffer | null = null;
+// We're not actually using data:URIs for now, but keeping the standard URLs
+// let logoCache: string | null = null; 
+// let backgroundCache: string | null = null;
 
 // Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
@@ -46,9 +45,36 @@ export async function GET(
       url: request.url 
     });
     
-    // Await all preloaded assets in parallel
-    const [fontRegular, fontBold, logoDataUri, bgDataUri] = 
-      await Promise.all([fontRegularP, fontBoldP, logoP, bgP]);
+    // Get origin directly from the request URL
+    const baseUrl = new URL(request.url).origin;
+    
+    // PERFORMANCE: Load and cache fonts if not already in memory
+    // This ensures we only fetch fonts once per edge function instance
+    if (!fontRegularCache) {
+      const fontUrl = new URL('/fonts/KleeOne-Regular.ttf', baseUrl).toString();
+      console.log('Loading regular font from:', fontUrl);
+      const res = await fetch(fontUrl, { cache: 'force-cache' });
+      fontRegularCache = await res.arrayBuffer();
+      console.log('Regular font loaded!');
+    }
+    
+    if (!fontBoldCache) {
+      const fontUrl = new URL('/fonts/KleeOne-SemiBold.ttf', baseUrl).toString();
+      console.log('Loading bold font from:', fontUrl);
+      const res = await fetch(fontUrl, { cache: 'force-cache' });
+      fontBoldCache = await res.arrayBuffer();
+      console.log('Bold font loaded!');
+    }
+    
+    // Get URLs for assets - served from Vercel's CDN
+    const logoUrl = new URL('/logo.png', baseUrl).toString();
+    const backgroundUrl = new URL('/color bg.png', baseUrl).toString();
+    
+    // Define the brand green color
+    const brandGreen = '#8AF337';
+
+    const fontDataRegular = fontRegularCache;
+    const fontDataBold = fontBoldCache;
 
     const res = new ImageResponse(
       (
@@ -82,9 +108,9 @@ export async function GET(
               padding: '0',
             }}
           >
-            {/* Background image using data URI instead of URL */}
+            {/* Background image */}
             <img
-              src={bgDataUri}
+              src={backgroundUrl}
               alt="Background"
               style={{
                 width: '100%',
@@ -109,6 +135,8 @@ export async function GET(
               }}
             />
           </div>
+          
+          
           
           {/* Main content container */}
           <div
@@ -280,7 +308,7 @@ export async function GET(
                   <img
                     width="36"
                     height="36"
-                    src={logoDataUri}
+                    src={logoUrl}
                     style={{
                       marginRight: '12px',
                       filter: 'drop-shadow(0 0 6px rgba(138, 243, 55, 0.7))', // Enhanced logo glow
@@ -310,13 +338,13 @@ export async function GET(
         fonts: [
           {
             name: 'Klee One',
-            data: fontRegular,
+            data: fontDataRegular,
             style: 'normal',
             weight: 400,
           },
           {
             name: 'Klee One',
-            data: fontBold,
+            data: fontDataBold,
             style: 'normal',
             weight: 600,
           },

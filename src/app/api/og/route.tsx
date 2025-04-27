@@ -3,12 +3,6 @@ import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
-// ------------- module scope (executed once per isolate) -------------
-// Module-level cached assets
-const logoP = fetch(new URL('../../../public/logo.png', import.meta.url))
-  .then(r => r.arrayBuffer())
-  .then(buf => `data:image/png;base64,${Buffer.from(buf).toString('base64')}`);
-
 // Simple hash function for consistent colors
 function hashCode(str: string): number {
   let hash = 0;
@@ -41,8 +35,10 @@ export async function GET(request: NextRequest) {
       url: request.url 
     });
     
-    // Await the pre-loaded logo
-    const logoDataUri = await logoP;
+    // Get origin directly from the request URL
+    const baseUrl = new URL(request.url).origin;
+    // Use the origin from request for the logo URL
+    const logoUrl = new URL('/logo.png', baseUrl).toString();
     
     // Generate colors based on username for the avatar background
     const hash = hashCode(username);
@@ -93,11 +89,11 @@ export async function GET(request: NextRequest) {
 
           {/* Logo */}
           <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {/* Use the data URI instead of URL */}
+            {/* Use the URL directly - @vercel/og will handle fetching the image */}
             <img
               width="120"
               height="120"
-              src={logoDataUri}
+              src={logoUrl}
               style={{ marginBottom: '20px' }}
               alt="TokenFight Logo"
             />
