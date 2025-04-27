@@ -29,7 +29,7 @@ export default function Background() {
       id: 1,
       src: "/Token (1).png",
       alt: "Token 1",
-      size: 25,
+      size: 65,
       top: "12%",
       left: "82%",
       opacity: 0.9,
@@ -38,7 +38,7 @@ export default function Background() {
       id: 2,
       src: "/Token (2).png",
       alt: "Token 2",
-      size: 55,
+      size: 100,
       top: "34%",
       left: "96%",
       opacity: 0.85,
@@ -47,7 +47,7 @@ export default function Background() {
       id: 3,
       src: "/Token (3).png",
       alt: "Token 3",
-      size: 65,
+      size: 120,
       top: "68%",
       left: "92%",
       opacity: 0.9,
@@ -56,7 +56,7 @@ export default function Background() {
       id: 4,
       src: "/Token (4).png",
       alt: "Token 4",
-      size: 20,
+      size: 55,
       top: "78%",
       left: "86%",
       opacity: 0.8,
@@ -65,7 +65,7 @@ export default function Background() {
       id: 5,
       src: "/Token (5).png",
       alt: "Token 5",
-      size: 45,
+      size: 90,
       top: "20%",
       left: "74%",
       opacity: 0.8,
@@ -74,7 +74,7 @@ export default function Background() {
       id: 6,
       src: "/Token (6).png",
       alt: "Token 6",
-      size: 18,
+      size: 50,
       top: "13%",
       left: "62%",
       opacity: 0.85,
@@ -83,7 +83,7 @@ export default function Background() {
       id: 7,
       src: "/Token (7).png",
       alt: "Token 7",
-      size: 35,
+      size: 75,
       top: "8%",
       left: "32%",
       opacity: 0.75,
@@ -92,7 +92,7 @@ export default function Background() {
       id: 8,
       src: "/Token (8).png",
       alt: "Token 8",
-      size: 25,
+      size: 65,
       top: "30%",
       left: "26%",
       opacity: 0.8,
@@ -101,7 +101,7 @@ export default function Background() {
       id: 9,
       src: "/Token (9).png",
       alt: "Token 9",
-      size: 22,
+      size: 60,
       top: "36%",
       left: "14%",
       opacity: 0.9,
@@ -110,7 +110,7 @@ export default function Background() {
       id: 10,
       src: "/Token (10).png",
       alt: "Token 10",
-      size: 58,
+      size: 110,
       top: "42%",
       left: "4%",
       opacity: 0.85,
@@ -119,7 +119,7 @@ export default function Background() {
       id: 11,
       src: "/Token (11).png",
       alt: "Token 11",
-      size: 70,
+      size: 130,
       top: "60%",
       left: "8%",
       opacity: 0.8,
@@ -128,7 +128,7 @@ export default function Background() {
       id: 12,
       src: "/Token (12).png",
       alt: "Token 12",
-      size: 24,
+      size: 70,
       top: "82%",
       left: "14%",
       opacity: 0.9,
@@ -137,7 +137,7 @@ export default function Background() {
       id: 13,
       src: "/Token (13).png",
       alt: "Token 13",
-      size: 26,
+      size: 75,
       top: "94%",
       left: "28%",
       opacity: 0.8,
@@ -146,7 +146,7 @@ export default function Background() {
       id: 14,
       src: "/Token (14).png",
       alt: "Token 14",
-      size: 50,
+      size: 95,
       top: "84%",
       left: "46%",
       opacity: 0.7,
@@ -155,7 +155,7 @@ export default function Background() {
       id: 15,
       src: "/Token (15).png",
       alt: "Token 15",
-      size: 18,
+      size: 50,
       top: "68%",
       left: "62%",
       opacity: 0.75,
@@ -164,7 +164,7 @@ export default function Background() {
       id: 16,
       src: "/Token (16).png",
       alt: "Token 16",
-      size: 28,
+      size: 75,
       top: "54%",
       left: "74%",
       opacity: 0.8,
@@ -173,7 +173,7 @@ export default function Background() {
       id: 17,
       src: "/Token (17).png",
       alt: "Token 17",
-      size: 24,
+      size: 65,
       top: "46%",
       left: "68%",
       opacity: 0.9,
@@ -182,7 +182,7 @@ export default function Background() {
       id: 18,
       src: "/Token (18).png",
       alt: "Token 18",
-      size: 22,
+      size: 60,
       top: "15%",
       left: "20%",
       opacity: 0.85,
@@ -191,7 +191,7 @@ export default function Background() {
       id: 19,
       src: "/Token (19).png",
       alt: "Token 19",
-      size: 30,
+      size: 75,
       top: "5%",
       left: "8%",
       opacity: 0.75,
@@ -200,7 +200,7 @@ export default function Background() {
       id: 20,
       src: "/Token (20).png",
       alt: "Token 20",
-      size: 80,
+      size: 145,
       top: "25%",
       left: "3%",
       opacity: 0.8,
@@ -209,7 +209,7 @@ export default function Background() {
       id: 21,
       src: "/Token (21).png",
       alt: "Token 21",
-      size: 26,
+      size: 70,
       top: "52%",
       left: "28%",
       opacity: 0.85,
@@ -218,7 +218,7 @@ export default function Background() {
       id: 22,
       src: "/Token (22).png",
       alt: "Token 22",
-      size: 60,
+      size: 115,
       top: "64%",
       left: "36%",
       opacity: 0.9,
@@ -227,7 +227,7 @@ export default function Background() {
       id: 23,
       src: "/Token (23).png",
       alt: "Token 23",
-      size: 32,
+      size: 80,
       top: "72%",
       left: "24%",
       opacity: 0.8,
@@ -236,7 +236,7 @@ export default function Background() {
       id: 24,
       src: "/Token (24).png",
       alt: "Token 24",
-      size: 68,
+      size: 125,
       top: "88%",
       left: "66%",
       opacity: 0.75,
@@ -245,7 +245,7 @@ export default function Background() {
       id: 25,
       src: "/Token (25).png",
       alt: "Token 25",
-      size: 54,
+      size: 105,
       top: "76%",
       left: "78%",
       opacity: 0.85,
@@ -254,7 +254,7 @@ export default function Background() {
       id: 26,
       src: "/Token (26).png",
       alt: "Token 26",
-      size: 30,
+      size: 75,
       top: "48%",
       left: "82%",
       opacity: 0.9,
@@ -263,7 +263,7 @@ export default function Background() {
       id: 0,
       src: "/Token.png",
       alt: "Token",
-      size: 42,
+      size: 90,
       top: "6%",
       left: "46%",
       opacity: 0.85,
@@ -274,15 +274,15 @@ export default function Background() {
   // Add animation durations and delays on client side
   useEffect(() => {
     const animatedTokens = tokens.map(token => {
-      // Random floating animation duration between 3-6s
-      const floatDuration = 3 + Math.random() * 3;
-      // Random floating animation delay between 0-2s
-      const floatDelay = Math.random() * 2;
+      // Random floating animation duration between 1.5-3s (faster than original 3-6s)
+      const floatDuration = 1.5 + Math.random() * 1.5;
+      // Random floating animation delay between 0-1s (reduced from 0-2s)
+      const floatDelay = Math.random() * 1;
       
-      // Random pulse animation duration between 4-8s
-      const pulseDuration = 4 + Math.random() * 4;
-      // Random pulse animation delay between 0-3s
-      const pulseDelay = Math.random() * 3;
+      // Random pulse animation duration between 2-4s (faster than original 4-8s)
+      const pulseDuration = 2 + Math.random() * 2;
+      // Random pulse animation delay between 0-1.5s (reduced from 0-3s)
+      const pulseDelay = Math.random() * 1.5;
       
       return {
         ...token,
@@ -302,8 +302,8 @@ export default function Background() {
     const calculatePanLimits = () => {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
-      const backgroundWidth = 1920;
-      const backgroundHeight = 1080;
+      const backgroundWidth = 3000; // Increased from 2400 for more coverage
+      const backgroundHeight = 1800; // Increased from 1350 for more coverage
       
       // Calculate how much of the background extends beyond the viewport
       const overflowX = Math.max(0, backgroundWidth - viewportWidth);
@@ -311,13 +311,15 @@ export default function Background() {
       
       // Calculate maximum safe percentage to translate
       // This ensures we never pan beyond the edge of the background
-      const maxTranslateX = Math.min(20, (overflowX / backgroundWidth) * 100);
-      const maxTranslateY = Math.min(20, (overflowY / backgroundHeight) * 100);
+      // We subtract a 5% safety margin to absolutely prevent any black edges
+      const maxTranslateX = Math.max(0, Math.min(15, (overflowX / backgroundWidth) * 100 - 5));
+      const maxTranslateY = Math.max(0, Math.min(15, (overflowY / backgroundHeight) * 100 - 5));
       
       setPanLimits({ x: maxTranslateX, y: maxTranslateY });
       
-      // Also update panning state
-      setIsPanning(viewportWidth < backgroundWidth || viewportHeight < backgroundHeight);
+      // Only enable panning if we have enough space to pan without showing black edges
+      // Require a minimum amount of space to enable panning
+      setIsPanning(maxTranslateX > 3 && maxTranslateY > 3);
     };
 
     // Calculate on initial load
@@ -334,7 +336,7 @@ export default function Background() {
     <div className="fixed inset-0 w-full h-full overflow-hidden z-0">
       <div 
         ref={backgroundRef}
-        className={`absolute w-[1920px] h-[1080px] ${isPanning ? 'panning-background' : ''} min-w-full min-h-full`}
+        className={`absolute w-[3000px] h-[1800px] ${isPanning ? 'panning-background' : ''} min-w-full min-h-full`}
         style={{
           // Apply dynamic CSS variables for animation limits
           '--max-x': `${panLimits.x}%`,
@@ -351,6 +353,7 @@ export default function Background() {
           fill
           className="object-cover"
           priority
+          sizes="(max-width: 3000px) 100vw, 3000px"
         />
 
         <style jsx global>{`
@@ -359,7 +362,7 @@ export default function Background() {
               transform: translateY(0) rotate(0deg);
             }
             50% {
-              transform: translateY(-10px) rotate(1deg);
+              transform: translateY(-15px) rotate(1.5deg);
             }
             100% {
               transform: translateY(0) rotate(0deg);
@@ -371,7 +374,7 @@ export default function Background() {
               transform: translateY(0) rotate(0deg);
             }
             50% {
-              transform: translateY(10px) rotate(-1deg);
+              transform: translateY(15px) rotate(-1.5deg);
             }
             100% {
               transform: translateY(0) rotate(0deg);
@@ -383,7 +386,7 @@ export default function Background() {
               transform: scale(1);
             }
             50% {
-              transform: scale(1.05);
+              transform: scale(1.08);
             }
             100% {
               transform: scale(1);
@@ -395,13 +398,13 @@ export default function Background() {
               transform: translate(-50%, -50%);
             }
             25% {
-              transform: translate(calc(-50% - var(--max-x)), calc(-50% - 0.5 * var(--max-y)));
+              transform: translate(calc(-50% - var(--max-x) * 0.8), calc(-50% - var(--max-y) * 0.8));
             }
             50% {
-              transform: translate(calc(-50% - 0.7 * var(--max-x)), calc(-50% - var(--max-y)));
+              transform: translate(calc(-50% + var(--max-x) * 0.8), calc(-50% - var(--max-y) * 0.8));
             }
             75% {
-              transform: translate(calc(-50% - 0.3 * var(--max-x)), calc(-50% - 0.8 * var(--max-y)));
+              transform: translate(calc(-50% + var(--max-x) * 0.8), calc(-50% + var(--max-y) * 0.8));
             }
             100% {
               transform: translate(-50%, -50%);
@@ -427,7 +430,7 @@ export default function Background() {
           }
 
           .panning-background {
-            animation: pan 90s infinite ease-in-out;
+            animation: pan 45s infinite ease-in-out;
           }
         `}</style>
 
