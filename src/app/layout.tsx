@@ -1,18 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Background from "@/components/background";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 // Separate viewport export as recommended by Next.js 15
 export const viewport: Viewport = {
@@ -45,8 +34,8 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [`${origin}/static-og.png`],
     },
     icons: {
-      icon: '/logo.png',
-      apple: '/logo.png',
+      icon: '/logo-black-bg.png',
+      apple: '/logo-black-bg.png',
     },
   };
 }
@@ -59,10 +48,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="icon" href="/logo.png" />
+        <link rel="icon" href="/logo-black-bg.png" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col relative`}
+        className={`antialiased min-h-screen flex flex-col relative`}
       >
         {/* Background component will position itself with fixed positioning */}
         <Background />
