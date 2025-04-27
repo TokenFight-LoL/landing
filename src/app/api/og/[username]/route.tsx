@@ -2,25 +2,30 @@ import { ImageResponse } from '@vercel/og';
 
 export const runtime = 'edge';
 
-// Function to load Google Font - both regular and bold weights
-async function loadGoogleFont(font: string, text: string, weight: number = 400) {
-  const url = `https://fonts.googleapis.com/css2?family=${font}:wght@${weight}&text=${encodeURIComponent(text)}`;
-  const css = await (await fetch(url)).text();
-  const resource = css.match(/src: url\((.+)\) format\('(opentype|truetype|woff2?)'\)/);
+// ------------- module scope (executed once per isolate) -------------
+// Preload fonts and assets to improve performance
+const fontRegularP = fetch(
+  new URL('../../../../public/fonts/klee-one-regular.woff2', import.meta.url)
+).then(r => r.arrayBuffer());
 
-  if (resource) {
-    const response = await fetch(resource[1]);
-    if (response.status === 200) {
-      return await response.arrayBuffer();
-    }
-  }
+const fontBoldP = fetch(
+  new URL('../../../../public/fonts/klee-one-bold.woff2', import.meta.url)
+).then(r => r.arrayBuffer());
 
-  throw new Error(`Failed to load font data for weight ${weight}`);
-}
+// embed logo and background once at module level
+const logoP = fetch(new URL('../../../../public/logo.png', import.meta.url))
+  .then(r => r.arrayBuffer())
+  .then(buf => `data:image/png;base64,${Buffer.from(buf).toString('base64')}`);
+
+const bgP = fetch(new URL('../../../../public/color bg.png', import.meta.url))
+  .then(r => r.arrayBuffer())
+  .then(buf => `data:image/png;base64,${Buffer.from(buf).toString('base64')}`);
+
+// Define brand green color
+const brandGreen = '#8AF337';
 
 // Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
-
 
 // Updated for Next.js 15 route handler types
 export async function GET(
@@ -41,22 +46,9 @@ export async function GET(
       url: request.url 
     });
     
-    // Get origin directly from the request URL
-    const baseUrl = new URL(request.url).origin;
-    // Use the origin from request for the logo URL
-    const logoUrl = new URL('/logo.png', baseUrl).toString();
-    // Add background image URL
-    const backgroundUrl = new URL('/color bg.png', baseUrl).toString();
-    
-    // Define the brand green color
-    const brandGreen = '#8AF337';
-
-    // Prepare text for font loading
-    const displayText = `TRADE TOKENS THAT KILL EACH OTHER @${username} TokenFight.LoL inviting to`;
-    
-    // Load Klee One font - both regular and bold weights
-    const fontDataRegular = await loadGoogleFont('Klee+One', displayText, 400);
-    const fontDataBold = await loadGoogleFont('Klee+One', displayText, 600);
+    // Await all preloaded assets in parallel
+    const [fontRegular, fontBold, logoDataUri, bgDataUri] = 
+      await Promise.all([fontRegularP, fontBoldP, logoP, bgP]);
 
     const res = new ImageResponse(
       (
@@ -90,9 +82,9 @@ export async function GET(
               padding: '0',
             }}
           >
-            {/* Background image */}
+            {/* Background image using data URI instead of URL */}
             <img
-              src={backgroundUrl}
+              src={bgDataUri}
               alt="Background"
               style={{
                 width: '100%',
@@ -117,8 +109,6 @@ export async function GET(
               }}
             />
           </div>
-          
-          
           
           {/* Main content container */}
           <div
@@ -290,7 +280,7 @@ export async function GET(
                   <img
                     width="36"
                     height="36"
-                    src={logoUrl}
+                    src={logoDataUri}
                     style={{
                       marginRight: '12px',
                       filter: 'drop-shadow(0 0 6px rgba(138, 243, 55, 0.7))', // Enhanced logo glow
@@ -320,13 +310,13 @@ export async function GET(
         fonts: [
           {
             name: 'Klee One',
-            data: fontDataRegular,
+            data: fontRegular,
             style: 'normal',
             weight: 400,
           },
           {
             name: 'Klee One',
-            data: fontDataBold,
+            data: fontBold,
             style: 'normal',
             weight: 600,
           },
