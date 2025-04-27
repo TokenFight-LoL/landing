@@ -2,25 +2,39 @@ import { ImageResponse } from '@vercel/og';
 
 export const runtime = 'edge';
 
-// Function to load Google Font - both regular and bold weights
-async function loadGoogleFont(font: string, text: string, weight: number = 400) {
-  const url = `https://fonts.googleapis.com/css2?family=${font}:wght@${weight}&text=${encodeURIComponent(text)}`;
-  const css = await (await fetch(url)).text();
-  const resource = css.match(/src: url\((.+)\) format\('(opentype|truetype|woff2?)'\)/);
-
-  if (resource) {
-    const response = await fetch(resource[1]);
-    if (response.status === 200) {
-      return await response.arrayBuffer();
+// Cached font loading promise - loads once per isolate
+const fontPromise = (async () => {
+  try {
+    // Generic text that covers most characters we'll need
+    const text = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,/@';
+    const css = await fetch(
+      `https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&text=${encodeURIComponent(text)}`
+    ).then(res => res.text());
+    
+    const resource = css.match(/src: url\((.+)\) format\('(opentype|truetype|woff2?)'\)/);
+    
+    if (!resource) {
+      console.log('No font resource found in CSS');
+      return { regular: null, bold: null };
     }
+    
+    const res = await fetch(resource[1]);
+    if (res.status !== 200) {
+      console.log(`Font fetch failed with status ${res.status}`);
+      return { regular: null, bold: null };
+    }
+    
+    const buffer = await res.arrayBuffer();
+    // Klee One includes both weights in a single file
+    return { regular: buffer, bold: buffer };
+  } catch (error) {
+    console.error('Error pre-loading font:', error);
+    return { regular: null, bold: null };
   }
-
-  throw new Error(`Failed to load font data for weight ${weight}`);
-}
+})();
 
 // Define params as Promise for Next.js 15 - for metadata generation
 type Params = Promise<{ username: string }>;
-
 
 // Updated for Next.js 15 route handler types
 export async function GET(
@@ -37,27 +51,78 @@ export async function GET(
     
     console.log('OG Image Request:', { 
       username,
-      profilePic,
+      profilePic: profilePic ? '[pic provided]' : 'none',
       url: request.url 
     });
     
     // Get origin directly from the request URL
     const baseUrl = new URL(request.url).origin;
+    
     // Use the origin from request for the logo URL
     const logoUrl = new URL('/logo.png', baseUrl).toString();
-    // Add background image URL
+    
+    // Add background image URL - from our own domain so it's safe to load
     const backgroundUrl = new URL('/color bg.png', baseUrl).toString();
     
     // Define the brand green color
     const brandGreen = '#8AF337';
 
-    // Prepare text for font loading
-    const displayText = `TRADE TOKENS THAT KILL EACH OTHER @${username} TokenFight.LoL inviting to`;
+    // Pre-fetch and inline the profile picture if present
+    let inlinedProfilePic: string | undefined;
     
-    // Load Klee One font - both regular and bold weights
-    const fontDataRegular = await loadGoogleFont('Klee+One', displayText, 400);
-    const fontDataBold = await loadGoogleFont('Klee+One', displayText, 600);
-
+    if (profilePic) {
+      try {
+        console.log(`Fetching profile pic from external URL...`);
+        const response = await fetch(profilePic, { 
+          cache: 'no-store',
+          headers: {
+            // Some headers to make the request appear more browser-like
+            'User-Agent': 'Mozilla/5.0 Vercel OG Function',
+            'Accept': 'image/webp,image/jpeg,image/png,image/*'
+          }
+        });
+        
+        if (response.ok) {
+          const imageBuffer = await response.arrayBuffer();
+          const base64Image = Buffer.from(imageBuffer).toString('base64');
+          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          inlinedProfilePic = `data:${contentType};base64,${base64Image}`;
+          console.log('Profile pic inlined successfully');
+        } else {
+          console.log(`Failed to fetch profile pic: ${response.status} ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Error fetching profile pic:', error);
+      }
+    }
+    
+    // Get the cached font data
+    const { regular, bold } = await fontPromise;
+    
+    // Prepare ImageResponse options
+    const options: any = {
+      width: 1200,
+      height: 630,
+    };
+    
+    // Only add fonts if both are available
+    if (regular && bold) {
+      options.fonts = [
+        {
+          name: 'Klee One',
+          data: regular,
+          style: 'normal',
+          weight: 400,
+        },
+        {
+          name: 'Klee One',
+          data: bold,
+          style: 'normal',
+          weight: 600,
+        },
+      ];
+    }
+    
     const res = new ImageResponse(
       (
         <div
@@ -67,12 +132,13 @@ export async function GET(
             display: 'flex',
             flexDirection: 'column',
             position: 'relative',
-            fontFamily: 'Klee One',
+            fontFamily: options.fonts?.length > 0 ? 'Klee One' : 'sans-serif',
             padding: '0',
             margin: '0',
             overflow: 'hidden',
             backgroundColor: '#000000', // Explicit black background
-            boxSizing: 'border-box', // Keep standard sizing; border removed for subtler effect
+            border: `10px solid ${brandGreen}`, // Simple green border
+            boxSizing: 'border-box',
           }}
         >
           {/* Background container */}
@@ -118,8 +184,6 @@ export async function GET(
             />
           </div>
           
-          
-          
           {/* Main content container */}
           <div
             style={{
@@ -154,17 +218,17 @@ export async function GET(
                   padding: '20px',
                 }}
               >
-                {/* Profile picture with enhanced styling */}
-                {profilePic ? (
+                {/* Profile picture with enhanced styling - use the inlined pic if we have it */}
+                {inlinedProfilePic ? (
                   <img
-                    src={profilePic}
+                    src={inlinedProfilePic}
                     width="280"
                     height="280"
                     style={{
                       borderRadius: '50%',
                       marginBottom: '25px',
                       border: `5px solid ${brandGreen}`, // Green border on profile picture
-                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`, // Enhanced glow effect
+                      boxShadow: `0 0 20px ${brandGreen}`, // Simple glow with no RGBA for better compatibility
                     }}
                     alt={`${username}'s avatar`}
                   />
@@ -183,7 +247,7 @@ export async function GET(
                       fontWeight: 'bold',
                       fontSize: '100px',
                       border: `5px solid ${brandGreen}`, // Green border on profile picture
-                      boxShadow: `0 0 20px rgba(138, 243, 55, 0.6), 0 0 10px rgba(255, 255, 255, 0.3)`, // Enhanced glow effect
+                      boxShadow: `0 0 20px ${brandGreen}`, // Simple glow with no RGBA for better compatibility
                     }}
                   >
                     {username.substring(0, 2).toUpperCase()}
@@ -197,8 +261,8 @@ export async function GET(
                   textAlign: 'center',
                   margin: 0,
                   fontWeight: '600',
-                  fontFamily: 'Klee One',
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                  fontFamily: options.fonts?.length > 0 ? 'Klee One' : 'sans-serif',
+                  textShadow: '0 2px 4px #000000', // Use hex colors instead of rgba
                   maxWidth: '100%', // Ensure text doesn't overflow
                   wordBreak: 'break-word', // Break long usernames
                 }}>
@@ -225,8 +289,8 @@ export async function GET(
                   margin: 0,
                   marginBottom: '8px', // Increased spacing
                   fontWeight: '400',
-                  fontFamily: 'Klee One',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                  fontFamily: options.fonts?.length > 0 ? 'Klee One' : 'sans-serif',
+                  textShadow: '0 1px 2px #000000', // Use hex colors instead of rgba
                   letterSpacing: '1px',
                 }}>
                   inviting to
@@ -242,7 +306,7 @@ export async function GET(
                     margin: 0,
                     marginBottom: '30px',
                     lineHeight: '1.3',
-                    fontFamily: 'Klee One',
+                    fontFamily: options.fonts?.length > 0 ? 'Klee One' : 'sans-serif',
                     letterSpacing: '0.5px',
                     maxWidth: '100%',
                     display: 'flex',
@@ -253,27 +317,27 @@ export async function GET(
                   <div style={{ 
                     color: brandGreen, 
                     fontWeight: 'bold', 
-                    textShadow: '0 0 8px rgba(138, 243, 55, 0.7), 0 0 2px rgba(255, 255, 255, 0.3)' 
+                    textShadow: '0 2px 4px #000000' // Use hex colors instead of rgba
                   }}>
                     TRADE
                   </div>
-                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                  <div style={{ textShadow: '0 2px 4px #000000' }}>
                     TOKENS
                   </div>
-                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                  <div style={{ textShadow: '0 2px 4px #000000' }}>
                     THAT
                   </div>
                   <div style={{ 
                     color: brandGreen, 
                     fontWeight: 'bold', 
-                    textShadow: '0 0 8px rgba(138, 243, 55, 0.7), 0 0 2px rgba(255, 255, 255, 0.3)' 
+                    textShadow: '0 2px 4px #000000' // Use hex colors instead of rgba
                   }}>
                     KILL
                   </div>
-                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                  <div style={{ textShadow: '0 2px 4px #000000' }}>
                     EACH
                   </div>
-                  <div style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                  <div style={{ textShadow: '0 2px 4px #000000' }}>
                     OTHER
                   </div>
                 </div>
@@ -293,7 +357,7 @@ export async function GET(
                     src={logoUrl}
                     style={{
                       marginRight: '12px',
-                      filter: 'drop-shadow(0 0 6px rgba(138, 243, 55, 0.7))', // Enhanced logo glow
+                      // Removed filter:drop-shadow - not supported well by Satori
                     }}
                     alt="TokenFight Logo"
                   />
@@ -302,9 +366,9 @@ export async function GET(
                     color: 'white', 
                     textAlign: 'left',
                     margin: 0,
-                    fontFamily: 'Klee One',
+                    fontFamily: options.fonts?.length > 0 ? 'Klee One' : 'sans-serif',
                     fontWeight: '600',
-                    textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                    textShadow: '0 2px 4px #000000', // Use hex colors instead of rgba
                   }}>
                     TokenFight.LoL
                   </p>
@@ -314,24 +378,7 @@ export async function GET(
           </div>
         </div>
       ),
-      {
-        width: 1200,
-        height: 630,
-        fonts: [
-          {
-            name: 'Klee One',
-            data: fontDataRegular,
-            style: 'normal',
-            weight: 400,
-          },
-          {
-            name: 'Klee One',
-            data: fontDataBold,
-            style: 'normal',
-            weight: 600,
-          },
-        ],
-      }
+      options
     );
     
     // Add cache headers for Twitter and other social media platforms
@@ -343,9 +390,44 @@ export async function GET(
     return res;
     
   } catch (e: unknown) {
-    console.log(`${e instanceof Error ? e.message : 'An error occurred'}`);
-    return new Response(`Failed to generate the image`, {
-      status: 500,
-    });
+    console.error('OG Image generation error:', e);
+    
+    // Fallback to a very basic image if anything fails
+    try {
+      const simpleFallback = new ImageResponse(
+        (
+          <div style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'black',
+            padding: '20px',
+            border: '10px solid #8AF337',
+          }}>
+            <div style={{textAlign: 'center'}}>
+              <div style={{ fontSize: '36px', marginBottom: '10px', color: '#CCCCCC' }}>@{(await params).username} is inviting you to</div>
+              <div style={{ fontSize: '68px', fontWeight: 'bold', marginBottom: '20px', color: 'white' }}>TokenFight</div>
+              <div style={{ fontSize: '32px', color: '#8AF337' }}>Trade tokens that kill each other</div>
+            </div>
+          </div>
+        ),
+        { width: 1200, height: 630 }
+      );
+      
+      // Add cache headers for Twitter
+      simpleFallback.headers.set(
+        'Cache-Control',
+        'public, immutable, no-transform, s-maxage=31536000, max-age=31536000'
+      );
+      
+      return simpleFallback;
+    } catch (fallbackError) {
+      console.error('Even fallback image failed:', fallbackError);
+      return new Response(`Failed to generate the image: ${e instanceof Error ? e.message : 'Unknown error'}`, {
+        status: 500,
+      });
+    }
   }
 }
