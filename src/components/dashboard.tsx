@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Copy, User as UserIcon, Power, Users } from "lucide-react"
+import { Copy, User as UserIcon, Power, Users, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { Klee_One } from "next/font/google"
@@ -73,6 +73,7 @@ export default function Dashboard({
 }: DashboardProps) {
   const [origin, setOrigin] = useState("")
   const [showCopiedMessage, setShowCopiedMessage] = useState(false)
+  const [showGenesisTooltip, setShowGenesisTooltip] = useState(false)
 
   // Set the origin once on the client side
   useEffect(() => {
@@ -90,6 +91,25 @@ export default function Dashboard({
       setShowCopiedMessage(false)
     }, 3000)
   }
+
+  const toggleGenesisTooltip = () => {
+    setShowGenesisTooltip(!showGenesisTooltip)
+  }
+
+  // Auto-hide tooltip after inactivity for better mobile experience
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (showGenesisTooltip) {
+      timeoutId = setTimeout(() => {
+        setShowGenesisTooltip(false)
+      }, 5000) // 5 seconds of inactivity will hide the tooltip
+    }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [showGenesisTooltip])
 
   const shareOnTwitter = () => {
     const referralLink = `${origin || "https://tokenfight.lol"}/ref/${referralCode}`;
@@ -123,10 +143,37 @@ export default function Dashboard({
         </div>
 
         {/* Genesis users count display - more subtle */}
-        <div className="text-center text-sm mb-1 text-gray-300">
-          <p className={klee.className}>
+        <div 
+          className="text-center text-sm mb-1 text-gray-300 relative flex items-center justify-center gap-1"
+        >
+          <p className={`${klee.className} inline-block`}>
             ⚡ <span className="text-[#8af337]">{genesisSpotsLeft}</span>/{genesisSpotsTotal} Genesis spots left
           </p>
+          <div
+            className="inline-flex items-center justify-center cursor-pointer align-middle"
+            onClick={toggleGenesisTooltip}
+            onMouseEnter={() => setShowGenesisTooltip(true)}
+            onMouseLeave={() => setShowGenesisTooltip(false)}
+            aria-label="Learn more about Genesis spots"
+            role="button"
+            tabIndex={0}
+            style={{ marginTop: '0.125rem' }}
+          >
+            <HelpCircle className="h-3.5 w-3.5 text-[#8af337]/70 hover:text-[#8af337] transition-colors" />
+          </div>
+          
+          {/* Genesis tooltip */}
+          {showGenesisTooltip && (
+            <div 
+              className="absolute z-10 left-1/2 transform -translate-x-1/2 top-full mt-2 px-4 py-2.5 rounded-md bg-black/90 backdrop-blur-md border border-[#8af337]/30 shadow-lg w-[280px] sm:w-[320px]"
+              onClick={(e) => e.stopPropagation()} // Prevent clicks inside tooltip from closing it
+            >
+              <p className={`${klee.className} text-xs sm:text-sm text-white leading-relaxed`}>
+                Genesis spot holders will be offered special privileges upon launch
+              </p>
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 rotate-45 bg-black/90 border-t border-l border-[#8af337]/30"></div>
+            </div>
+          )}
         </div>
 
         {/* Referrer info (if present) - more subtle */}
