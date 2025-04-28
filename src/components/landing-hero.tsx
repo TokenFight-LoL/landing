@@ -90,7 +90,7 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
       
       {/* Main content - centered */}
       <div className="flex flex-col items-center justify-center text-center w-full">
-        {referrerData && (
+        {/* {referrerData && (
           <div className="relative overflow-hidden bg-gradient-to-r from-[#8af337]/30 to-[#8af337]/20 p-3 sm:p-4 rounded-lg text-xs sm:text-sm text-white font-medium animate-pulse mb-5 sm:mb-6 md:mb-8 max-w-xs sm:max-w-sm md:max-w-md">
             <div className="absolute -top-10 -left-10 w-16 sm:w-20 h-16 sm:h-20 bg-[#8af337]/30 rounded-full blur-xl"></div>
             <div className="absolute -bottom-10 -right-10 w-16 sm:w-20 h-16 sm:h-20 bg-[#8af337]/30 rounded-full blur-xl"></div>
@@ -99,7 +99,7 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
               {referrerData.twitter_username || referrerData.email || 'a TokenFight community member'}
             </span></p>
           </div>
-        )}
+        )} */}
 
         <div className="flex items-center gap-2 sm:gap-8 mb-5 sm:mb-6 md:mb-8">
           <Image
