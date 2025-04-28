@@ -53,10 +53,9 @@ export default function ReferralClient({ username, initialReferrerData }: Referr
           // Check if user exists
           let userRecord = await getUserByPrivyId(user.id);
           
-          // If user is authenticated and trying to use their own referral code,
-          // or if they're already authenticated, redirect to home page
-          if (userRecord && userRecord.referral_code === refCode) {
-            console.log('User is trying to use their own referral code. Redirecting to home page.');
+          // If this Privy user already has an account in our database, we do NOT allow them to attach a referral.
+          if (userRecord) {
+            console.log('Existing user detected – skipping referral application and redirecting to home.');
             router.push('/');
             return;
           }
@@ -99,18 +98,8 @@ export default function ReferralClient({ username, initialReferrerData }: Referr
             // Clean username to be URL-friendly
             const usernameBased = username.replace(/[^a-zA-Z0-9_]/g, '');
             
-            if (userRecord) {
-              // Use existing referral code or update it
-              if (userRecord.referral_code && userRecord.referral_code.startsWith('TF')) {
-                generatedCode = usernameBased;
-              } else if (userRecord.referral_code) {
-                generatedCode = userRecord.referral_code;
-              } else {
-                generatedCode = usernameBased;
-              }
-            } else {
-              generatedCode = usernameBased;
-            }
+            // Since the user doesn't yet exist, we can safely use the username-based code.
+            generatedCode = usernameBased;
             
             // Store user in database
             userRecord = await createOrUpdateUser(
@@ -121,9 +110,13 @@ export default function ReferralClient({ username, initialReferrerData }: Referr
               user.twitter?.profilePictureUrl || undefined
             );
 
-            if (userRecord && refCode !== userRecord.referral_code) {
-              // Track the referral if this user was referred
-              await trackReferral(refCode, userRecord.id);
+            if (userRecord) {
+              // Avoid self-referral when the generated code equals the referrer code
+              if (refCode !== userRecord.referral_code) {
+                await trackReferral(refCode, userRecord.id);
+              } else {
+                console.log('Generated referral code matches ref code; skipping self-referral.');
+              }
               
               // Redirect to home page after successful referral
               router.push('/');

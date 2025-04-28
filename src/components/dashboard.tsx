@@ -243,7 +243,7 @@ export default function Dashboard({
                 </div>
                 
                 <div className="rounded-[10px] bg-black/60 backdrop-blur-[10px] p-3.5 md:p-4 text-center">
-                  <h3 className={`${klee.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>Rewards Earned 💎</h3>
+                  <h3 className={`${klee.className} text-gray-400 text-xs md:text-sm mb-0.5 md:mb-1`}>ETH Earned 💎</h3>
                   <p className={`${klee.className} text-lg md:text-xl text-[#8af337] strong-bold`}>coming soon</p>
                 </div>
               </div>
