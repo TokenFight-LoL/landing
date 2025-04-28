@@ -114,7 +114,7 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
 
         <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-14 text-white/90">
           <p className={`${klee.className} text-base sm:text-xl md:text-3xl mb-1 font-normal`}>Fully <span className="medium-bold">on-chain</span> MMO.</p>
-          <p className={`${klee.className} text-base sm:text-xl md:text-3xl font-normal`}>Trade tokens that <span className="strong-bold">kill</span> each other.</p>
+          <p className={`${klee.className} text-base sm:text-xl md:text-3xl font-normal`}><span className="strong-bold">Trade</span> tokens that <span className="strong-bold">kill</span> each other.</p>
         </div>
 
         <div>

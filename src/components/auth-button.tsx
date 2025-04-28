@@ -47,7 +47,7 @@ export function AuthButton({ size = "sm", className }: AuthButtonProps) {
       <Button 
         onClick={handleLogin} 
         size="lg" 
-        className={`${className || ""} group w-[200px] sm:w-[220px] md:w-[240px] lg:w-[259px] h-[50px] sm:h-[58px] md:h-[65px] lg:h-[72px] px-4 sm:px-6 md:px-8 lg:px-9 py-2 sm:py-2.5 md:py-3 flex justify-center items-center gap-3 sm:gap-4 md:gap-5 flex-shrink-0 rounded-full border border-[#8af337] bg-transparent text-[#8af337] transition-all hover:bg-[#8af337]/10 focus:outline-none animate-glow-pulse hover:animate-none`}
+        className={`${className || ""} cursor-pointer group w-[200px] sm:w-[220px] md:w-[240px] lg:w-[259px] h-[50px] sm:h-[58px] md:h-[65px] lg:h-[72px] px-4 sm:px-6 md:px-8 lg:px-9 py-2 sm:py-2.5 md:py-3 flex justify-center items-center gap-3 sm:gap-4 md:gap-5 flex-shrink-0 rounded-full border border-[#8af337] bg-transparent text-[#8af337] transition-all hover:bg-[#8af337]/10 focus:outline-none animate-glow-pulse hover:animate-none`}
         disabled={isModalOpen}
       >
         {isModalOpen ? (
@@ -75,7 +75,7 @@ export function AuthButton({ size = "sm", className }: AuthButtonProps) {
   return (
     <Button 
       onClick={handleLogin} 
-      className={`${className || ""} relative overflow-hidden group border border-[#8af337]/50 bg-transparent text-[#8af337] hover:bg-[#8af337]/10 text-xs sm:text-sm md:text-base`}
+      className={`${className || ""} cursor-pointer relative overflow-hidden group border border-[#8af337]/50 bg-transparent text-[#8af337] hover:bg-[#8af337]/10 text-xs sm:text-sm md:text-base`}
       disabled={isModalOpen}
     >
       <span className={`${klee.className} relative flex items-center justify-center`}>
