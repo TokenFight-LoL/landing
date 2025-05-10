@@ -127,8 +127,8 @@ export default function Dashboard({
   // Common card background styling
   const cardBgClass = "rounded-[30px] bg-gradient-to-t from-[rgba(162,162,162,0.16)] to-[rgba(206,206,206,0.05)] shadow-[0px_2.5px_157px_rgba(0,0,0,0.3)] backdrop-blur-[65px] border-[#2e3446]/10";
 
-  // Calculate Genesis spots remaining
-  const genesisSpotsLeft = genesisSpotsTotal - genesisCount;
+  // Calculate Genesis spots remaining - ensure it never goes below 0
+  const genesisSpotsLeft = Math.max(0, genesisSpotsTotal - genesisCount);
 
   return (
     <section className="z-10 w-full max-w-lg mx-auto flex flex-col h-screen">

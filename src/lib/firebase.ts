@@ -115,10 +115,11 @@ export async function createOrUpdateUser(
     let isGenesis = userSnap.exists() ? userSnap.data().is_genesis : false;
     
     // If not already a Genesis user, check if we still have spots available
+    // IMPORTANT: All Genesis spots are taken, so we're hardcoding this to false for new users
     if (!isGenesis) {
-      const genesisCount = await getGenesisUsersCount();
-      isGenesis = genesisCount < GENESIS_SPOTS;
-      console.log(`DEBUG - Genesis users count: ${genesisCount}, Spots left: ${GENESIS_SPOTS - genesisCount}, Is Genesis: ${isGenesis}`);
+      // All 500 Genesis spots are already claimed - no new Genesis users
+      isGenesis = false;
+      console.log(`DEBUG - All Genesis spots are taken, user ${privyUserId} is not a Genesis user`);
     }
     
     // Create user data object

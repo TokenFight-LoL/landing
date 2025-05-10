@@ -80,8 +80,8 @@ export function LandingHero({ referrerData }: LandingHeroProps) {
     fetchGenesisCount();
   }, []);
   
-  // Calculate Genesis spots remaining
-  const genesisSpotsLeft = GENESIS_SPOTS - genesisCount;
+  // Calculate Genesis spots remaining - ensure it never goes below 0
+  const genesisSpotsLeft = Math.max(0, GENESIS_SPOTS - genesisCount);
 
   return (
     <div className="z-10 flex flex-col items-center justify-between real-vh px-3 sm:px-4 md:px-5 lg:px-6 pb-10 pt-10">
